@@ -1,0 +1,30 @@
+# パッケージ
+**/node_modules/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Express
+backend/dist/
+
+# Prisma自動生成コード
+backend/src/generated/prisma/
+
+# 環境変数
+**/.env
+!.env.example
+
+# Prismaが自動作成したAI設定
+backend/.claude/
+backend/.windsurf/
+backend/.agents/
+backend/skills-lock.json
+
+# ログ
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db

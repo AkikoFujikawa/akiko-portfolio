@@ -1,0 +1,21 @@
+# パッケージ
+**/node_modules/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Express
+backend/dist/
+
+# 環境変数
+**/.env
+!.env.example
+
+# ログ
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
