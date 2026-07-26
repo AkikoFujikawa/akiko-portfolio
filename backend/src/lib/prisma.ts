@@ -1,0 +1,18 @@
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../generated/prisma/client";
+
+// Prisma Clientのインスタンスを作成する
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("DATABASE_URLが設定されていません");
+}
+
+const adapter = new PrismaPg({
+  connectionString,
+});
+
+export const prisma = new PrismaClient({
+  adapter,
+});
