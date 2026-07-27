@@ -1,31 +1,10 @@
-const works = [
-  {
-    title: "家計簿アプリ",
-    description:
-      "収入と支出を登録・編集・削除できる家計簿アプリを制作しました。",
-    technologies: ["Next.js", "Express", "Prisma", "MariaDB"],
-  },
-  {
-    title: "AWS・S3学習",
-    description:
-      "S3を利用した静的Webサイトの公開や、CloudFrontの仕組みを学習しました。",
-    technologies: ["AWS", "S3", "CloudFront"],
-  },
-];
+import { getPortfolioContent } from "@/lib/portfolio-api";
 
-const skills = [
-  "JavaScript",
-  "TypeScript",
-  "Next.js",
-  "Express",
-  "Prisma",
-  "PostgreSQL",
-  "Docker",
-  "GitHub",
-  "AWS",
-];
+export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
+  const { profile, works, skills } = await getPortfolioContent();
+
   return (
     <main className="watercolor-bg min-h-screen text-[#4a4a4a]">
       {/* ヘッダー */}
@@ -40,7 +19,9 @@ export default function Home() {
               href="#profile"
               className="text-center transition hover:opacity-60"
             >
-              <span className="block text-sm font-semibold">私について</span>
+              <span className="block text-sm font-semibold">
+                私について
+              </span>
               <span className="block text-xs">Profile</span>
             </a>
 
@@ -48,7 +29,9 @@ export default function Home() {
               href="#works"
               className="text-center transition hover:opacity-60"
             >
-              <span className="block text-sm font-semibold">制作実績</span>
+              <span className="block text-sm font-semibold">
+                制作実績
+              </span>
               <span className="block text-xs">Works</span>
             </a>
 
@@ -56,7 +39,9 @@ export default function Home() {
               href="#skills"
               className="text-center transition hover:opacity-60"
             >
-              <span className="block text-sm font-semibold">スキル</span>
+              <span className="block text-sm font-semibold">
+                スキル
+              </span>
               <span className="block text-xs">Skills</span>
             </a>
 
@@ -81,8 +66,13 @@ export default function Home() {
         {/* 左側 */}
         <div className="fade-up relative z-10">
           <div className="mb-10">
-            <p className="text-2xl font-medium tracking-wider">藤川 明子</p>
-            <p className="mt-2 text-xl tracking-[0.12em]">Akiko Fujikawa</p>
+            <p className="text-2xl font-medium tracking-wider">
+              {profile?.nameJa ?? "藤川 明子"}
+            </p>
+
+            <p className="mt-2 text-xl tracking-[0.12em]">
+              {profile?.name ?? "Akiko Fujikawa"}
+            </p>
           </div>
 
           <h1 className="mb-10 text-5xl font-light tracking-[0.18em] md:text-7xl">
@@ -90,8 +80,8 @@ export default function Home() {
           </h1>
 
           <h2 className="mb-10 text-3xl font-bold leading-relaxed md:text-4xl">
-            <span className="block">人に寄り添う経験を</span>
-            <span className="block">デジタルの力へ</span>
+            {profile?.headline ??
+              "人に寄り添う経験をデジタルの力へ"}
           </h2>
 
           <div className="flex flex-wrap gap-4">
@@ -115,7 +105,9 @@ export default function Home() {
         <div className="fade-up relative z-10 flex justify-center">
           <div className="flex h-[420px] w-[310px] items-center justify-center rounded-[50%] bg-white/40 shadow-xl ring-1 ring-white/40 md:h-[500px] md:w-[370px]">
             <div className="text-center">
-              <p className="text-6xl font-semibold tracking-wider">AF</p>
+              <p className="text-6xl font-semibold tracking-wider">
+                AF
+              </p>
               <p className="mt-4 text-sm">プロフィール画像</p>
             </div>
           </div>
@@ -123,60 +115,94 @@ export default function Home() {
       </section>
 
       {/* プロフィール */}
-      <section id="profile" className="mx-auto max-w-6xl scroll-mt-20 px-6 py-20">
+      <section
+        id="profile"
+        className="mx-auto max-w-6xl scroll-mt-20 px-6 py-20"
+      >
         <div className="mb-12 text-center">
-          <p className="text-sm font-semibold tracking-[0.25em]">PROFILE</p>
-          <h2 className="mt-3 text-3xl font-bold">プロフィール</h2>
+          <p className="text-sm font-semibold tracking-[0.25em]">
+            PROFILE
+          </p>
+          <h2 className="mt-3 text-3xl font-bold">
+            プロフィール
+          </h2>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {[
-            {
-              title: "過去",
-              text: "旅行、行政、農業、相談支援など、さまざまな仕事を経験しました。",
-            },
-            {
-              title: "現在",
-              text: "子育て世代を支える仕事に携わりながら、より良い仕組みづくりを目指してWeb開発を学んでいます。",
-            },
-            {
-              title: "未来",
-              text: "人を支える経験とITを組み合わせ、業務改善に関わることを目指しています。",
-            },
-          ].map((item) => (
-            <article
-              key={item.title}
-              className="rounded-2xl bg-white/40 p-8 shadow-sm transition hover:-translate-y-1 hover:bg-white/60"
-            >
-              <h3 className="mb-4 text-center text-2xl font-semibold">
-                {item.title}
-              </h3>
-              <p className="leading-7">{item.text}</p>
-            </article>
-          ))}
+        <div className="space-y-8">
+          {/* DBから取得するプロフィール本文 */}
+          <div className="mx-auto max-w-3xl rounded-2xl bg-white/40 p-8 shadow-sm">
+            <p className="leading-8">
+              {profile?.bio ??
+                "プロフィールを準備しています。"}
+            </p>
+
+            {profile?.location && (
+              <p className="mt-5 text-sm text-slate-600">
+                Location: {profile.location}
+              </p>
+            )}
+          </div>
+
+          {/* 固定表示するキャリア */}
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              {
+                title: "過去",
+                text: "旅行、行政、農業、相談支援など、さまざまな仕事を経験しました。",
+              },
+              {
+                title: "現在",
+                text: "子育て世代を支える仕事に携わりながら、より良い仕組みづくりを目指してWeb開発を学んでいます。",
+              },
+              {
+                title: "未来",
+                text: "人を支える経験とITを組み合わせ、業務改善に関わることを目指しています。",
+              },
+            ].map((item) => (
+              <article
+                key={item.title}
+                className="rounded-2xl bg-white/40 p-8 shadow-sm transition hover:-translate-y-1 hover:bg-white/60"
+              >
+                <h3 className="mb-4 text-center text-2xl font-semibold">
+                  {item.title}
+                </h3>
+
+                <p className="leading-7">{item.text}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* 実績 */}
-      <section id="works" className="mx-auto max-w-6xl scroll-mt-20 px-6 py-20">
+      <section
+        id="works"
+        className="mx-auto max-w-6xl scroll-mt-20 px-6 py-20"
+      >
         <div className="mb-12 text-center">
-          <p className="text-sm font-semibold tracking-[0.25em]">WORKS</p>
+          <p className="text-sm font-semibold tracking-[0.25em]">
+            WORKS
+          </p>
           <h2 className="mt-3 text-3xl font-bold">実績</h2>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
           {works.map((work) => (
             <article
-              key={work.title}
+              key={work.id}
               className="rounded-2xl bg-white/40 p-8 shadow-sm transition hover:-translate-y-1 hover:bg-white/60"
             >
               <div className="mb-6 flex h-48 items-center justify-center rounded-xl bg-white/30">
                 <span className="text-sm">作品画像</span>
               </div>
 
-              <h3 className="mb-3 text-2xl font-semibold">{work.title}</h3>
+              <h3 className="mb-3 text-2xl font-semibold">
+                {work.title}
+              </h3>
 
-              <p className="mb-5 leading-7">{work.description}</p>
+              <p className="mb-5 leading-7">
+                {work.description}
+              </p>
 
               <div className="flex flex-wrap gap-2">
                 {work.technologies.map((technology) => (
@@ -194,32 +220,44 @@ export default function Home() {
       </section>
 
       {/* スキル */}
-      <section id="skills" className="mx-auto max-w-4xl scroll-mt-20 px-6 py-20">
+      <section
+        id="skills"
+        className="mx-auto max-w-4xl scroll-mt-20 px-6 py-20"
+      >
         <div className="mb-12 text-center">
-          <p className="text-sm font-semibold tracking-[0.25em]">SKILLS</p>
+          <p className="text-sm font-semibold tracking-[0.25em]">
+            SKILLS
+          </p>
           <h2 className="mt-3 text-3xl font-bold">スキル</h2>
         </div>
 
         <div className="flex flex-wrap justify-center gap-3">
           {skills.map((skill) => (
             <span
-              key={skill}
+              key={skill.id}
               className="rounded-full bg-white/45 px-5 py-3 font-medium shadow-sm"
             >
-              {skill}
+              {skill.name}
             </span>
           ))}
         </div>
       </section>
 
       {/* お問い合わせ */}
-      <section id="contact" className="mx-auto max-w-3xl scroll-mt-20 px-6 py-20">
+      <section
+        id="contact"
+        className="mx-auto max-w-3xl scroll-mt-20 px-6 py-20"
+      >
         <div className="rounded-3xl bg-white/40 p-10 text-center shadow-sm">
-          <p className="text-sm font-semibold tracking-[0.25em]">CONTACT</p>
-          <h2 className="mt-3 text-3xl font-bold">お問い合わせ</h2>
+          <p className="text-sm font-semibold tracking-[0.25em]">
+            CONTACT
+          </p>
+          <h2 className="mt-3 text-3xl font-bold">
+            お問い合わせ
+          </h2>
 
           <p className="mt-5 leading-7">
-            どんなことでもお気軽にお問い合わせください。<br />
+            どんなことでもお気軽にお問い合わせください。
           </p>
 
           <button

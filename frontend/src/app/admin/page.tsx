@@ -1,33 +1,14 @@
-import { cookies } from "next/headers";
-import { notFound } from "next/navigation";
-import { adminAuth } from "@/lib/firebase-admin";
+import { getPortfolioContent } from "@/lib/portfolio-api";
+import { requireAdmin } from "@/lib/require-admin";
 import LogoutButton from "./logout-button";
+import { createSkill } from "./actions";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("session")?.value;
+  await requireAdmin();
 
-  if (!sessionCookie) {
-    notFound();
-  }
-
-  let uid: string;
-
-  try {
-    const decodedToken = await adminAuth.verifySessionCookie(
-      sessionCookie,
-      true,
-    );
-
-    uid = decodedToken.uid;
-  } catch (error) {
-    console.error("セッション確認エラー:", error);
-    notFound();
-  }
-
-  if (uid !== process.env.FIREBASE_ADMIN_UID) {
-    notFound();
-  }
+  const { skills } = await getPortfolioContent();
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-sky-100 via-stone-100 to-amber-50 px-6 py-16">
@@ -49,6 +30,91 @@ export default async function AdminPage() {
         <p className="mt-6 text-slate-600">
           管理者としてログインしています。
         </p>
+
+        <section className="mt-10 border-t border-slate-200 pt-8">
+          <h2 className="text-2xl font-semibold text-slate-800">
+            スキルを登録
+          </h2>
+
+          <form
+            action={createSkill}
+            className="mt-6 grid gap-5"
+          >
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                スキル名
+              </span>
+              <input
+                type="text"
+                name="name"
+                required
+                className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                placeholder="例：TypeScript"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                説明
+              </span>
+              <textarea
+                name="description"
+                rows={3}
+                className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                placeholder="例：型を利用した安全なコード作成"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                カテゴリー
+              </span>
+              <input
+                type="text"
+                name="category"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                placeholder="例：Language"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                表示順
+              </span>
+              <input
+                type="number"
+                name="displayOrder"
+                min="0"
+                defaultValue={skills.length + 1}
+                className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+              />
+            </label>
+
+            <button
+              type="submit"
+              className="w-fit rounded-full bg-slate-800 px-7 py-3 font-medium text-white transition hover:bg-slate-600"
+            >
+              スキルを登録
+            </button>
+          </form>
+        </section>
+
+        <section className="mt-10 border-t border-slate-200 pt-8">
+          <h2 className="text-2xl font-semibold text-slate-800">
+            登録済みスキル
+          </h2>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            {skills.map((skill) => (
+              <span
+                key={skill.id}
+                className="rounded-full bg-sky-100 px-4 py-2 text-slate-700"
+              >
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        </section>
       </section>
     </main>
   );
