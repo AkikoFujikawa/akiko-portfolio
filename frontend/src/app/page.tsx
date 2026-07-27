@@ -3,14 +3,18 @@ import { getPortfolioContent } from "@/lib/portfolio-api";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const { profile, works, skills } = await getPortfolioContent();
+  const { profile, works, skills } =
+    await getPortfolioContent();
 
   return (
     <main className="watercolor-bg min-h-screen text-[#4a4a4a]">
       {/* ヘッダー */}
       <header className="sticky top-0 z-20 border-b border-white/30 bg-white/45 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <a href="#" className="text-xl font-semibold tracking-wide">
+          <a
+            href="#"
+            className="text-xl font-semibold tracking-wide"
+          >
             AKIKO PORTFOLIO
           </a>
 
@@ -22,7 +26,9 @@ export default async function Home() {
               <span className="block text-sm font-semibold">
                 私について
               </span>
-              <span className="block text-xs">Profile</span>
+              <span className="block text-xs">
+                Profile
+              </span>
             </a>
 
             <a
@@ -32,7 +38,9 @@ export default async function Home() {
               <span className="block text-sm font-semibold">
                 制作実績
               </span>
-              <span className="block text-xs">Works</span>
+              <span className="block text-xs">
+                Works
+              </span>
             </a>
 
             <a
@@ -42,7 +50,9 @@ export default async function Home() {
               <span className="block text-sm font-semibold">
                 スキル
               </span>
-              <span className="block text-xs">Skills</span>
+              <span className="block text-xs">
+                Skills
+              </span>
             </a>
 
             <a
@@ -52,7 +62,9 @@ export default async function Home() {
               <span className="block text-sm font-semibold">
                 お問い合わせ
               </span>
-              <span className="block text-xs">Contact</span>
+              <span className="block text-xs">
+                Contact
+              </span>
             </a>
           </nav>
         </div>
@@ -79,9 +91,9 @@ export default async function Home() {
             Portfolio
           </h1>
 
-          <h2 className="mb-10 text-3xl font-bold leading-relaxed md:text-4xl">
+          <h2 className="mb-10 whitespace-pre-line text-3xl font-bold leading-relaxed md:text-4xl">
             {profile?.headline ??
-              "人に寄り添う経験をデジタルの力へ"}
+              "人に寄り添う経験を\nデジタルの力へ"}
           </h2>
 
           <div className="flex flex-wrap gap-4">
@@ -108,7 +120,9 @@ export default async function Home() {
               <p className="text-6xl font-semibold tracking-wider">
                 AF
               </p>
-              <p className="mt-4 text-sm">プロフィール画像</p>
+              <p className="mt-4 text-sm">
+                プロフィール画像
+              </p>
             </div>
           </div>
         </div>
@@ -128,49 +142,51 @@ export default async function Home() {
           </h2>
         </div>
 
-        <div className="space-y-8">
-          {/* DBから取得するプロフィール本文 */}
-          <div className="mx-auto max-w-3xl rounded-2xl bg-white/40 p-8 shadow-sm">
-            <p className="leading-8">
-              {profile?.bio ??
-                "プロフィールを準備しています。"}
+        <div className="mx-auto max-w-3xl rounded-2xl bg-white/40 p-8 shadow-sm">
+          <p className="whitespace-pre-line leading-8">
+            {profile?.bio ??
+              "プロフィールを準備しています。"}
+          </p>
+
+          {profile?.location && (
+            <p className="mt-5 text-sm text-slate-600">
+              Location: {profile.location}
             </p>
+          )}
+        </div>
 
-            {profile?.location && (
-              <p className="mt-5 text-sm text-slate-600">
-                Location: {profile.location}
-              </p>
-            )}
-          </div>
+        {/* 過去・現在・未来 */}
+        <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <article className="rounded-2xl bg-white/40 p-7 shadow-sm">
+            <h3 className="text-center text-xl font-semibold">
+              過去
+            </h3>
+            <p className="mt-4 leading-7">
+              旅行、行政、農業、相談支援など、
+              さまざまな仕事を経験しました。
+            </p>
+          </article>
 
-          {/* 固定表示するキャリア */}
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                title: "過去",
-                text: "旅行、行政、農業、相談支援など、さまざまな仕事を経験しました。",
-              },
-              {
-                title: "現在",
-                text: "子育て世代を支える仕事に携わりながら、より良い仕組みづくりを目指してWeb開発を学んでいます。",
-              },
-              {
-                title: "未来",
-                text: "人を支える経験とITを組み合わせ、業務改善に関わることを目指しています。",
-              },
-            ].map((item) => (
-              <article
-                key={item.title}
-                className="rounded-2xl bg-white/40 p-8 shadow-sm transition hover:-translate-y-1 hover:bg-white/60"
-              >
-                <h3 className="mb-4 text-center text-2xl font-semibold">
-                  {item.title}
-                </h3>
+          <article className="rounded-2xl bg-white/40 p-7 shadow-sm">
+            <h3 className="text-center text-xl font-semibold">
+              現在
+            </h3>
+            <p className="mt-4 leading-7">
+              子育て世代を支える仕事に携わりながら、
+              より良い仕組みづくりを目指して
+              Web開発を学んでいます。
+            </p>
+          </article>
 
-                <p className="leading-7">{item.text}</p>
-              </article>
-            ))}
-          </div>
+          <article className="rounded-2xl bg-white/40 p-7 shadow-sm">
+            <h3 className="text-center text-xl font-semibold">
+              未来
+            </h3>
+            <p className="mt-4 leading-7">
+              人を支える経験とITを組み合わせ、
+              業務改善に関わることを目指しています。
+            </p>
+          </article>
         </div>
       </section>
 
@@ -183,7 +199,9 @@ export default async function Home() {
           <p className="text-sm font-semibold tracking-[0.25em]">
             WORKS
           </p>
-          <h2 className="mt-3 text-3xl font-bold">実績</h2>
+          <h2 className="mt-3 text-3xl font-bold">
+            実績
+          </h2>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
@@ -193,14 +211,16 @@ export default async function Home() {
               className="rounded-2xl bg-white/40 p-8 shadow-sm transition hover:-translate-y-1 hover:bg-white/60"
             >
               <div className="mb-6 flex h-48 items-center justify-center rounded-xl bg-white/30">
-                <span className="text-sm">作品画像</span>
+                <span className="text-sm">
+                  作品画像
+                </span>
               </div>
 
               <h3 className="mb-3 text-2xl font-semibold">
                 {work.title}
               </h3>
 
-              <p className="mb-5 leading-7">
+              <p className="mb-5 whitespace-pre-line leading-7">
                 {work.description}
               </p>
 
@@ -228,7 +248,9 @@ export default async function Home() {
           <p className="text-sm font-semibold tracking-[0.25em]">
             SKILLS
           </p>
-          <h2 className="mt-3 text-3xl font-bold">スキル</h2>
+          <h2 className="mt-3 text-3xl font-bold">
+            スキル
+          </h2>
         </div>
 
         <div className="flex flex-wrap justify-center gap-3">
@@ -252,6 +274,7 @@ export default async function Home() {
           <p className="text-sm font-semibold tracking-[0.25em]">
             CONTACT
           </p>
+
           <h2 className="mt-3 text-3xl font-bold">
             お問い合わせ
           </h2>
