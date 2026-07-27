@@ -1,14 +1,14 @@
 import { getPortfolioContent } from "@/lib/portfolio-api";
 import { requireAdmin } from "@/lib/require-admin";
 import LogoutButton from "./logout-button";
-import { createSkill } from "./actions";
+import { createSkill, updateProfile } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   await requireAdmin();
 
-  const { skills } = await getPortfolioContent();
+  const { profile, skills } = await getPortfolioContent();
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-sky-100 via-stone-100 to-amber-50 px-6 py-16">
@@ -33,6 +33,111 @@ export default async function AdminPage() {
 
         <section className="mt-10 border-t border-slate-200 pt-8">
           <h2 className="text-2xl font-semibold text-slate-800">
+            プロフィールを編集
+          </h2>
+
+          {profile ? (
+            <form
+              action={updateProfile}
+              className="mt-6 grid gap-5"
+            >
+              <input
+                type="hidden"
+                name="id"
+                value={profile.id}
+              />
+
+              <label className="grid gap-2">
+                <span className="font-medium text-slate-700">
+                  日本語名
+                </span>
+
+                <input
+                  type="text"
+                  name="nameJa"
+                  defaultValue={profile.nameJa ?? ""}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  placeholder="例：藤川 明子"
+                />
+              </label>
+
+              <label className="grid gap-2">
+                <span className="font-medium text-slate-700">
+                  英語名
+                </span>
+
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  defaultValue={profile.name}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  placeholder="例：Akiko Fujikawa"
+                />
+              </label>
+
+              <label className="grid gap-2">
+                <span className="font-medium text-slate-700">
+                  見出し
+                </span>
+
+                <textarea
+                  name="headline"
+                  required
+                  rows={2}
+                  defaultValue={profile.headline}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  placeholder={
+                    "例：人に寄り添う経験を\nデジタルの力へ"
+                  }
+                />
+              </label>
+
+              <label className="grid gap-2">
+                <span className="font-medium text-slate-700">
+                  自己紹介
+                </span>
+
+                <textarea
+                  name="bio"
+                  required
+                  rows={5}
+                  defaultValue={profile.bio}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  placeholder="プロフィールの自己紹介を入力してください"
+                />
+              </label>
+
+              <label className="grid gap-2">
+                <span className="font-medium text-slate-700">
+                  地域
+                </span>
+
+                <input
+                  type="text"
+                  name="location"
+                  defaultValue={profile.location ?? ""}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  placeholder="例：Ibaraki, Japan"
+                />
+              </label>
+
+              <button
+                type="submit"
+                className="w-fit rounded-full bg-slate-800 px-7 py-3 font-medium text-white transition hover:bg-slate-600"
+              >
+                プロフィールを更新
+              </button>
+            </form>
+          ) : (
+            <p className="mt-6 text-slate-600">
+              プロフィールが登録されていません。
+            </p>
+          )}
+        </section>
+
+        <section className="mt-10 border-t border-slate-200 pt-8">
+          <h2 className="text-2xl font-semibold text-slate-800">
             スキルを登録
           </h2>
 
@@ -44,6 +149,7 @@ export default async function AdminPage() {
               <span className="font-medium text-slate-700">
                 スキル名
               </span>
+
               <input
                 type="text"
                 name="name"
@@ -57,6 +163,7 @@ export default async function AdminPage() {
               <span className="font-medium text-slate-700">
                 説明
               </span>
+
               <textarea
                 name="description"
                 rows={3}
@@ -69,6 +176,7 @@ export default async function AdminPage() {
               <span className="font-medium text-slate-700">
                 カテゴリー
               </span>
+
               <input
                 type="text"
                 name="category"
@@ -81,6 +189,7 @@ export default async function AdminPage() {
               <span className="font-medium text-slate-700">
                 表示順
               </span>
+
               <input
                 type="number"
                 name="displayOrder"

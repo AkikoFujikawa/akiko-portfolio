@@ -1,8 +1,52 @@
 "use server";
-//フォームの内容をNext.jsサーバーで受け取り、認証を確認してからExpressへ送ります。
+
+// フォームの内容をNext.jsサーバーで受け取り、
+// 認証を確認してからExpressへ送ります。
 import { revalidatePath } from "next/cache";
 import { adminApiFetch } from "@/lib/admin-api";
 import { requireAdmin } from "@/lib/require-admin";
+
+export async function updateProfile(
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+
+  const id = Number(formData.get("id"));
+  const name = String(formData.get("name") ?? "").trim();
+  const nameJa = String(formData.get("nameJa") ?? "").trim();
+  const headline = String(
+    formData.get("headline") ?? "",
+  ).trim();
+  const bio = String(formData.get("bio") ?? "").trim();
+  const location = String(
+    formData.get("location") ?? "",
+  ).trim();
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error("プロフィールIDが正しくありません");
+  }
+
+  if (!name || !headline || !bio) {
+    throw new Error(
+      "英語名、見出し、自己紹介は必須です",
+    );
+  }
+
+  await adminApiFetch(`/api/admin/profile/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      name,
+      nameJa: nameJa || null,
+      headline,
+      bio,
+      location: location || null,
+    }),
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/api/portfolio");
+}
 
 export async function createSkill(
   formData: FormData,
@@ -40,4 +84,5 @@ export async function createSkill(
 
   revalidatePath("/admin");
   revalidatePath("/");
+  revalidatePath("/api/portfolio");
 }
