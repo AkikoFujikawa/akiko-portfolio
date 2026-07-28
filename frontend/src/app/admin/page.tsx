@@ -1,14 +1,22 @@
 import { getPortfolioContent } from "@/lib/portfolio-api";
 import { requireAdmin } from "@/lib/require-admin";
 import LogoutButton from "./logout-button";
-import { createSkill, updateProfile } from "./actions";
+import {
+  createSkill,
+  updateProfile,
+  updateWork,
+} from "./actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   await requireAdmin();
 
-  const { profile, skills } = await getPortfolioContent();
+  const { profile, works, skills } =
+    await getPortfolioContent();
+
+  const inputClassName =
+    "rounded-xl border border-slate-300 bg-white px-4 py-3";
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-sky-100 via-stone-100 to-amber-50 px-6 py-16">
@@ -31,6 +39,7 @@ export default async function AdminPage() {
           管理者としてログインしています。
         </p>
 
+        {/* プロフィール編集 */}
         <section className="mt-10 border-t border-slate-200 pt-8">
           <h2 className="text-2xl font-semibold text-slate-800">
             プロフィールを編集
@@ -51,12 +60,11 @@ export default async function AdminPage() {
                 <span className="font-medium text-slate-700">
                   日本語名
                 </span>
-
                 <input
                   type="text"
                   name="nameJa"
                   defaultValue={profile.nameJa ?? ""}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  className={inputClassName}
                   placeholder="例：藤川 明子"
                 />
               </label>
@@ -65,13 +73,12 @@ export default async function AdminPage() {
                 <span className="font-medium text-slate-700">
                   英語名
                 </span>
-
                 <input
                   type="text"
                   name="name"
                   required
                   defaultValue={profile.name}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  className={inputClassName}
                   placeholder="例：Akiko Fujikawa"
                 />
               </label>
@@ -80,13 +87,12 @@ export default async function AdminPage() {
                 <span className="font-medium text-slate-700">
                   見出し
                 </span>
-
                 <textarea
                   name="headline"
                   required
                   rows={2}
                   defaultValue={profile.headline}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  className={inputClassName}
                   placeholder={
                     "例：人に寄り添う経験を\nデジタルの力へ"
                   }
@@ -97,13 +103,12 @@ export default async function AdminPage() {
                 <span className="font-medium text-slate-700">
                   自己紹介
                 </span>
-
                 <textarea
                   name="bio"
                   required
                   rows={5}
                   defaultValue={profile.bio}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  className={inputClassName}
                   placeholder="プロフィールの自己紹介を入力してください"
                 />
               </label>
@@ -112,12 +117,11 @@ export default async function AdminPage() {
                 <span className="font-medium text-slate-700">
                   地域
                 </span>
-
                 <input
                   type="text"
                   name="location"
                   defaultValue={profile.location ?? ""}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  className={inputClassName}
                   placeholder="例：Ibaraki, Japan"
                 />
               </label>
@@ -136,6 +140,127 @@ export default async function AdminPage() {
           )}
         </section>
 
+        {/* 実績編集 */}
+        <section className="mt-10 border-t border-slate-200 pt-8">
+          <h2 className="text-2xl font-semibold text-slate-800">
+            実績を編集
+          </h2>
+
+          {works.length > 0 ? (
+            <div className="mt-6 grid gap-8">
+              {works.map((work) => (
+                <form
+                  key={work.id}
+                  action={updateWork}
+                  className="grid gap-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-6"
+                >
+                  <input
+                    type="hidden"
+                    name="id"
+                    value={work.id}
+                  />
+
+                  <label className="grid gap-2">
+                    <span className="font-medium text-slate-700">
+                      タイトル
+                    </span>
+                    <input
+                      type="text"
+                      name="title"
+                      required
+                      defaultValue={work.title}
+                      className={inputClassName}
+                    />
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="font-medium text-slate-700">
+                      説明
+                    </span>
+                    <textarea
+                      name="description"
+                      required
+                      rows={4}
+                      defaultValue={work.description}
+                      className={inputClassName}
+                    />
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="font-medium text-slate-700">
+                      使用技術
+                    </span>
+                    <input
+                      type="text"
+                      name="technologies"
+                      required
+                      defaultValue={work.technologies.join(
+                        ", ",
+                      )}
+                      className={inputClassName}
+                      placeholder="例：Next.js, TypeScript, Express"
+                    />
+                    <span className="text-sm text-slate-500">
+                      複数の技術はカンマで区切ります。
+                    </span>
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="font-medium text-slate-700">
+                      GitHub URL
+                    </span>
+                    <input
+                      type="url"
+                      name="githubUrl"
+                      defaultValue={work.githubUrl ?? ""}
+                      className={inputClassName}
+                      placeholder="https://github.com/..."
+                    />
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="font-medium text-slate-700">
+                      デモURL
+                    </span>
+                    <input
+                      type="url"
+                      name="demoUrl"
+                      defaultValue={work.demoUrl ?? ""}
+                      className={inputClassName}
+                      placeholder="https://..."
+                    />
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="font-medium text-slate-700">
+                      表示順
+                    </span>
+                    <input
+                      type="number"
+                      name="displayOrder"
+                      min="0"
+                      defaultValue={work.displayOrder}
+                      className={inputClassName}
+                    />
+                  </label>
+
+                  <button
+                    type="submit"
+                    className="w-fit rounded-full bg-slate-800 px-7 py-3 font-medium text-white transition hover:bg-slate-600"
+                  >
+                    実績を更新
+                  </button>
+                </form>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-6 text-slate-600">
+              登録済みの実績がありません。
+            </p>
+          )}
+        </section>
+
+        {/* スキル登録 */}
         <section className="mt-10 border-t border-slate-200 pt-8">
           <h2 className="text-2xl font-semibold text-slate-800">
             スキルを登録
@@ -149,12 +274,11 @@ export default async function AdminPage() {
               <span className="font-medium text-slate-700">
                 スキル名
               </span>
-
               <input
                 type="text"
                 name="name"
                 required
-                className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                className={inputClassName}
                 placeholder="例：TypeScript"
               />
             </label>
@@ -163,11 +287,10 @@ export default async function AdminPage() {
               <span className="font-medium text-slate-700">
                 説明
               </span>
-
               <textarea
                 name="description"
                 rows={3}
-                className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                className={inputClassName}
                 placeholder="例：型を利用した安全なコード作成"
               />
             </label>
@@ -176,11 +299,10 @@ export default async function AdminPage() {
               <span className="font-medium text-slate-700">
                 カテゴリー
               </span>
-
               <input
                 type="text"
                 name="category"
-                className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                className={inputClassName}
                 placeholder="例：Language"
               />
             </label>
@@ -189,13 +311,12 @@ export default async function AdminPage() {
               <span className="font-medium text-slate-700">
                 表示順
               </span>
-
               <input
                 type="number"
                 name="displayOrder"
                 min="0"
                 defaultValue={skills.length + 1}
-                className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+                className={inputClassName}
               />
             </label>
 
@@ -208,6 +329,7 @@ export default async function AdminPage() {
           </form>
         </section>
 
+        {/* 登録済みスキル */}
         <section className="mt-10 border-t border-slate-200 pt-8">
           <h2 className="text-2xl font-semibold text-slate-800">
             登録済みスキル
