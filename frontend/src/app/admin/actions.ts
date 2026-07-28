@@ -147,3 +147,59 @@ export async function createSkill(
   revalidatePath("/");
   revalidatePath("/api/portfolio");
 }
+export async function updateProfileImage(
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+
+  const id = Number(formData.get("id"));
+  const image = formData.get("image");
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error(
+      "プロフィールIDが正しくありません",
+    );
+  }
+
+  if (!(image instanceof File) || image.size === 0) {
+    throw new Error(
+      "プロフィール画像を選択してください",
+    );
+  }
+
+  const allowedImageTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ];
+
+  if (!allowedImageTypes.includes(image.type)) {
+    throw new Error(
+      "JPEG、PNG、WebPの画像を選択してください",
+    );
+  }
+
+  const maximumImageSize = 1024 * 1024;
+
+  if (image.size > maximumImageSize) {
+    throw new Error(
+      "画像サイズは1MB以下にしてください",
+    );
+  }
+
+  await adminApiFetch(
+    `/api/admin/profile/${id}/image`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": image.type,
+      },
+      body: await image.arrayBuffer(),
+    },
+  );
+
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/api/profile-image");
+  revalidatePath("/api/portfolio");
+}

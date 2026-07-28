@@ -1,3 +1,4 @@
+import ProfileImageForm from "./profile-image-form";
 import { getPortfolioContent } from "@/lib/portfolio-api";
 import { requireAdmin } from "@/lib/require-admin";
 import LogoutButton from "./logout-button";
@@ -38,6 +39,12 @@ export default async function AdminPage() {
         <p className="mt-6 text-slate-600">
           管理者としてログインしています。
         </p>
+        {profile && (
+  <ProfileImageForm
+    profileId={profile.id}
+    hasImage={Boolean(profile.imageMimeType)}
+  />
+)}
 
         {/* プロフィール編集 */}
         <section className="mt-10 border-t border-slate-200 pt-8">
