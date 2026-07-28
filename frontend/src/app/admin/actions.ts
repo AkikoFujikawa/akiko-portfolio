@@ -48,6 +48,67 @@ export async function updateProfile(
   revalidatePath("/api/portfolio");
 }
 
+export async function updateWork(
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+
+  const id = Number(formData.get("id"));
+  const title = String(
+    formData.get("title") ?? "",
+  ).trim();
+  const description = String(
+    formData.get("description") ?? "",
+  ).trim();
+  const technologiesText = String(
+    formData.get("technologies") ?? "",
+  ).trim();
+  const githubUrl = String(
+    formData.get("githubUrl") ?? "",
+  ).trim();
+  const demoUrl = String(
+    formData.get("demoUrl") ?? "",
+  ).trim();
+  const displayOrderValue = Number(
+    formData.get("displayOrder") ?? 0,
+  );
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error("実績IDが正しくありません");
+  }
+
+  const technologies = technologiesText
+    .split(/[,、]/)
+    .map((technology) => technology.trim())
+    .filter(Boolean);
+
+  if (!title || !description || technologies.length === 0) {
+    throw new Error(
+      "タイトル、説明、使用技術は必須です",
+    );
+  }
+
+  const displayOrder = Number.isInteger(displayOrderValue)
+    ? displayOrderValue
+    : 0;
+
+  await adminApiFetch(`/api/admin/works/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      title,
+      description,
+      technologies,
+      githubUrl: githubUrl || null,
+      demoUrl: demoUrl || null,
+      displayOrder,
+    }),
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/api/portfolio");
+}
+
 export async function createSkill(
   formData: FormData,
 ): Promise<void> {
