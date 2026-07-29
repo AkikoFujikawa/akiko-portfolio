@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getPortfolioContent } from "@/lib/portfolio-api";
 
 export const dynamic = "force-dynamic";
@@ -115,15 +116,28 @@ export default async function Home() {
 
         {/* 右側 */}
         <div className="fade-up relative z-10 flex justify-center">
-          <div className="flex h-[420px] w-[310px] items-center justify-center rounded-[50%] bg-white/40 shadow-xl ring-1 ring-white/40 md:h-[500px] md:w-[370px]">
-            <div className="text-center">
-              <p className="text-6xl font-semibold tracking-wider">
-                AF
-              </p>
-              <p className="mt-4 text-sm">
-                プロフィール画像
-              </p>
-            </div>
+          <div className="relative flex h-[420px] w-[310px] items-center justify-center overflow-hidden rounded-[50%] bg-white/40 shadow-xl ring-1 ring-white/40 md:h-[500px] md:w-[370px]">
+            {profile?.imageMimeType ? (
+              <Image
+                src="/api/profile-image"
+                alt={`${profile.nameJa ?? profile.name
+                  }のプロフィール画像`}
+                fill
+                sizes="(min-width: 768px) 370px, 310px"
+                priority
+                unoptimized
+                className="object-cover"
+              />
+            ) : (
+              <div className="text-center">
+                <p className="text-6xl font-semibold tracking-wider">
+                  AF
+                </p>
+                <p className="mt-4 text-sm">
+                  プロフィール画像
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>

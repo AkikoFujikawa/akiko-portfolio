@@ -1,10 +1,12 @@
-//秘密の内部APIキーはNext.jsサーバー内だけで使用され、ブラウザには渡りません
+// 秘密の内部APIキーはNext.jsサーバー内だけで使用され、
+// ブラウザには渡りません。
 export async function adminApiFetch(
   path: string,
   options: RequestInit,
 ): Promise<Response> {
   const backendUrl = process.env.BACKEND_URL;
-  const internalApiKey = process.env.INTERNAL_API_KEY;
+  const internalApiKey =
+    process.env.INTERNAL_API_KEY;
 
   if (!backendUrl || !internalApiKey) {
     throw new Error(
@@ -14,8 +16,19 @@ export async function adminApiFetch(
 
   const headers = new Headers(options.headers);
 
-  headers.set("Content-Type", "application/json");
-  headers.set("x-internal-api-key", internalApiKey);
+  // 画像には画像用のContent-Typeを使用します。
+  // 指定がない通常の処理ではJSONを使用します。
+  if (!headers.has("Content-Type")) {
+    headers.set(
+      "Content-Type",
+      "application/json",
+    );
+  }
+
+  headers.set(
+    "x-internal-api-key",
+    internalApiKey,
+  );
 
   const response = await fetch(
     `${backendUrl.replace(/\/$/, "")}${path}`,

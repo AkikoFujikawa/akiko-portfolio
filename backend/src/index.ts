@@ -6,6 +6,8 @@ import express, {
 } from "express";
 import contentRouter from "./routes/content";
 import adminRouter from "./routes/admin";
+import imageRouter from "./routes/images";
+import profileImageRouter from "./routes/profile-image";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -27,10 +29,13 @@ function verifyInternalApiKey(
   res: Response,
   next: NextFunction,
 ) {
-  const configuredApiKey = process.env.INTERNAL_API_KEY;
+  const configuredApiKey =
+    process.env.INTERNAL_API_KEY;
 
   if (!configuredApiKey) {
-    console.error("INTERNAL_API_KEYが設定されていません。");
+    console.error(
+      "INTERNAL_API_KEYが設定されていません。",
+    );
 
     res.status(500).json({
       error: "サーバーの設定に問題があります",
@@ -38,7 +43,9 @@ function verifyInternalApiKey(
     return;
   }
 
-  const receivedApiKey = req.header("x-internal-api-key");
+  const receivedApiKey = req.header(
+    "x-internal-api-key",
+  );
 
   if (receivedApiKey !== configuredApiKey) {
     res.status(404).json({
@@ -50,13 +57,14 @@ function verifyInternalApiKey(
   next();
 }
 
-// トップページから使用する公開用取得API
-app.use("/api", contentRouter);
+// トップページから使用する公開用API
+app.use("/api", imageRouter, contentRouter);
 
 // 管理画面から使用する登録・更新・削除API
 app.use(
   "/api/admin",
   verifyInternalApiKey,
+  profileImageRouter,
   adminRouter,
 );
 
