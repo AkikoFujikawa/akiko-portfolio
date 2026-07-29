@@ -1,7 +1,8 @@
-import ProfileImageForm from "./profile-image-form";
+import Link from "next/link";
 import { getPortfolioContent } from "@/lib/portfolio-api";
 import { requireAdmin } from "@/lib/require-admin";
 import LogoutButton from "./logout-button";
+import ProfileImageForm from "./profile-image-form";
 import {
   createSkill,
   updateProfile,
@@ -22,7 +23,7 @@ export default async function AdminPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-sky-100 via-stone-100 to-amber-50 px-6 py-16">
       <section className="mx-auto max-w-5xl rounded-3xl bg-white/80 p-8 shadow-lg">
-        <div className="flex items-start justify-between gap-6">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-sm tracking-widest text-slate-500">
               ADMIN DASHBOARD
@@ -33,18 +34,37 @@ export default async function AdminPage() {
             </h1>
           </div>
 
-          <LogoutButton />
+          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+            {/* 公開サイトを別タブで開く */}
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="公開サイトを新しいタブで開く"
+              className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
+            >
+              公開サイトを見る
+              <span className="ml-1 text-xs">
+
+              </span>
+            </Link>
+
+            <LogoutButton />
+          </div>
         </div>
 
         <p className="mt-6 text-slate-600">
           管理者としてログインしています。
         </p>
+
         {profile && (
-  <ProfileImageForm
-    profileId={profile.id}
-    hasImage={Boolean(profile.imageMimeType)}
-  />
-)}
+          <ProfileImageForm
+            profileId={profile.id}
+            hasImage={Boolean(
+              profile.imageMimeType,
+            )}
+          />
+        )}
 
         {/* プロフィール編集 */}
         <section className="mt-10 border-t border-slate-200 pt-8">
@@ -70,7 +90,9 @@ export default async function AdminPage() {
                 <input
                   type="text"
                   name="nameJa"
-                  defaultValue={profile.nameJa ?? ""}
+                  defaultValue={
+                    profile.nameJa ?? ""
+                  }
                   className={inputClassName}
                   placeholder="例：藤川 明子"
                 />
@@ -127,7 +149,9 @@ export default async function AdminPage() {
                 <input
                   type="text"
                   name="location"
-                  defaultValue={profile.location ?? ""}
+                  defaultValue={
+                    profile.location ?? ""
+                  }
                   className={inputClassName}
                   placeholder="例：Ibaraki, Japan"
                 />
@@ -188,7 +212,9 @@ export default async function AdminPage() {
                       name="description"
                       required
                       rows={4}
-                      defaultValue={work.description}
+                      defaultValue={
+                        work.description
+                      }
                       className={inputClassName}
                     />
                   </label>
@@ -219,7 +245,9 @@ export default async function AdminPage() {
                     <input
                       type="url"
                       name="githubUrl"
-                      defaultValue={work.githubUrl ?? ""}
+                      defaultValue={
+                        work.githubUrl ?? ""
+                      }
                       className={inputClassName}
                       placeholder="https://github.com/..."
                     />
@@ -232,7 +260,9 @@ export default async function AdminPage() {
                     <input
                       type="url"
                       name="demoUrl"
-                      defaultValue={work.demoUrl ?? ""}
+                      defaultValue={
+                        work.demoUrl ?? ""
+                      }
                       className={inputClassName}
                       placeholder="https://..."
                     />
@@ -246,7 +276,9 @@ export default async function AdminPage() {
                       type="number"
                       name="displayOrder"
                       min="0"
-                      defaultValue={work.displayOrder}
+                      defaultValue={
+                        work.displayOrder
+                      }
                       className={inputClassName}
                     />
                   </label>

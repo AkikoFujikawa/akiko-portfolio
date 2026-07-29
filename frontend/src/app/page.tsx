@@ -1,5 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { getPortfolioContent } from "@/lib/portfolio-api";
+import ContactForm from "./contact-form";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +13,7 @@ export default async function Home() {
     <main className="watercolor-bg min-h-screen text-[#4a4a4a]">
       {/* ヘッダー */}
       <header className="sticky top-0 z-20 border-b border-white/30 bg-white/45 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
           <a
             href="#"
             className="text-xl font-semibold tracking-wide"
@@ -19,7 +21,7 @@ export default async function Home() {
             AKIKO PORTFOLIO
           </a>
 
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-5 md:flex lg:gap-8">
             <a
               href="#profile"
               className="text-center transition hover:opacity-60"
@@ -68,6 +70,26 @@ export default async function Home() {
               </span>
             </a>
           </nav>
+
+          {/* 管理者ログインを別タブで開く */}
+          <Link
+            href="/admin/login"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="管理者ログインを新しいタブで開く"
+            className="whitespace-nowrap rounded-full border border-[#4a4a4a]/20 bg-white/30 px-3 py-2 text-xs text-[#4a4a4a]/70 transition hover:bg-white/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
+          >
+            管理者ログイン
+            <span className="ml-1 hidden lg:inline">
+
+            </span>
+            <span
+              aria-hidden="true"
+              className="ml-1 lg:hidden"
+            >
+              ↗
+            </span>
+          </Link>
         </div>
       </header>
 
@@ -120,8 +142,9 @@ export default async function Home() {
             {profile?.imageMimeType ? (
               <Image
                 src="/api/profile-image"
-                alt={`${profile.nameJa ?? profile.name
-                  }のプロフィール画像`}
+                alt={`${
+                  profile.nameJa ?? profile.name
+                }のプロフィール画像`}
                 fill
                 sizes="(min-width: 768px) 370px, 310px"
                 priority
@@ -239,14 +262,16 @@ export default async function Home() {
               </p>
 
               <div className="flex flex-wrap gap-2">
-                {work.technologies.map((technology) => (
-                  <span
-                    key={technology}
-                    className="rounded-full bg-white/50 px-3 py-1 text-sm"
-                  >
-                    {technology}
-                  </span>
-                ))}
+                {work.technologies.map(
+                  (technology) => (
+                    <span
+                      key={technology}
+                      className="rounded-full bg-white/50 px-3 py-1 text-sm"
+                    >
+                      {technology}
+                    </span>
+                  ),
+                )}
               </div>
             </article>
           ))}
@@ -297,12 +322,7 @@ export default async function Home() {
             どんなことでもお気軽にお問い合わせください。
           </p>
 
-          <button
-            type="button"
-            className="mt-8 rounded-full bg-white/65 px-8 py-3 text-[#4a4a4a] shadow-sm ring-1 ring-white/60 transition hover:-translate-y-1 hover:bg-white/85"
-          >
-            Contact me
-          </button>
+          <ContactForm />
         </div>
       </section>
 
