@@ -1,24 +1,55 @@
 "use client";
 
 import {
-  GoogleAuthProvider,
-  signInWithPopup,
+  signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { useState } from "react";
+import { FirebaseError } from "firebase/app";
+import { type FormEvent, useState } from "react";
 import { auth } from "@/lib/firebase";
 
+function getLoginErrorMessage(error: unknown): string {
+  if (error instanceof FirebaseError) {
+    switch (error.code) {
+      case "auth/invalid-credential":
+      case "auth/user-not-found":
+      case "auth/wrong-password":
+        return "メールアドレスまたはパスワードが正しくありません。";
+      case "auth/invalid-email":
+        return "メールアドレスの形式が正しくありません。";
+      case "auth/too-many-requests":
+        return "ログイン試行回数が多すぎます。時間をおいて再度お試しください。";
+      case "auth/user-disabled":
+        return "このアカウントは無効になっています。";
+      default:
+        return "ログインに失敗しました。";
+    }
+  }
+
+  return error instanceof Error
+    ? error.message
+    : "ログインに失敗しました。";
+}
+
 export default function AdminLoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleLogin = async () => {
+  const handleLogin = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
     setIsLoading(true);
     setMessage("");
 
     try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password,
+      );
       const idToken = await result.user.getIdToken();
 
       const response = await fetch("/api/auth/session", {
@@ -34,11 +65,13 @@ export default function AdminLoginPage() {
 
         if (response.status === 404) {
           throw new Error(
-            "このGoogleアカウントは管理者として登録されていません。",
+            "このアカウントは管理者として登録されていません。",
           );
         }
 
-                throw new Error("ログイン情報を確認できませんでした。");
+        throw new Error(
+          "ログイン情報を確認できませんでした。",
+        );
       }
 
       // ログイン成功後、管理者ページにリダイレクト
@@ -47,11 +80,7 @@ export default function AdminLoginPage() {
     } catch (error) {
       console.error(error);
 
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Googleログインに失敗しました。",
-      );
+      setMessage(getLoginErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -69,17 +98,51 @@ export default function AdminLoginPage() {
         </h1>
 
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          ポートフォリオを編集するには、管理者用のGoogleアカウントでログインしてください。
+          管理者用のメールアドレスとパスワードを入力してください。
         </p>
 
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={isLoading}
-          className="mt-8 w-full rounded-full bg-slate-800 px-6 py-3 font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+        <form
+          onSubmit={handleLogin}
+          className="mt-8 grid gap-5"
         >
-          {isLoading ? "ログイン中..." : "Googleでログイン"}
-        </button>
+          <label className="grid gap-2">
+            <span className="text-sm font-medium text-slate-700">
+              メールアドレス
+            </span>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              autoComplete="username"
+              className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-medium text-slate-700">
+              パスワード
+            </span>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
+              required
+              autoComplete="current-password"
+              className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full rounded-full bg-slate-800 px-6 py-3 font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLoading ? "ログイン中..." : "ログイン"}
+          </button>
+        </form>
 
         {message && (
           <p className="mt-5 text-sm text-red-700">{message}</p>

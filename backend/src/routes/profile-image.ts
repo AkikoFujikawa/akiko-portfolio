@@ -1,20 +1,15 @@
-//画像を最大5MBまで受け取り、PostgreSQLへ保存
-import {
-  raw,
-  Request,
-  Response,
-  Router,
-} from "express";
+// 画像を最大1MBまで受け取り、PostgreSQLへ保存します。
+import { raw, Request, Response, Router } from "express";
 import { prisma } from "../lib/prisma";
 
 const router = Router();
-// 画像のMIMEタイプの制限
+
 const allowedImageTypes = [
   "image/jpeg",
   "image/png",
   "image/webp",
 ];
-// 画像の最大サイズの制限（5MB）
+
 function parseId(
   value: string | string[] | undefined,
 ): number | null {
@@ -30,12 +25,30 @@ function parseId(
 
   return id;
 }
-// プロフィール画像の更新エンドポイント
+
+function getImageContentType(req: Request): string | null {
+  const contentType = req
+    .header("content-type")
+    ?.split(";")[0]
+    .trim()
+    .toLowerCase();
+
+  if (!contentType || !allowedImageTypes.includes(contentType)) {
+    return null;
+  }
+
+  return contentType;
+}
+
+function hasImageData(body: unknown): body is Buffer {
+  return Buffer.isBuffer(body) && body.length > 0;
+}
+
 router.put(
   "/profile/:id/image",
   raw({
     type: allowedImageTypes,
-    limit: "5mb",
+    limit: "1mb",
   }),
   async (req: Request, res: Response) => {
     try {
@@ -47,35 +60,22 @@ router.put(
         });
         return;
       }
-      // リクエストのContent-Typeを取得し、画像のMIMEタイプを確認
 
-      const contentType = req
-        .header("content-type")
-        ?.split(";")[0]
-        .trim()
-        .toLowerCase();
+      const contentType = getImageContentType(req);
 
-      if (
-        !contentType ||
-        !allowedImageTypes.includes(contentType)
-      ) {
+      if (!contentType) {
         res.status(400).json({
-          error:
-            "JPEG、PNG、WebPの画像を選択してください",
+          error: "JPEG、PNG、WebPの画像を選択してください",
         });
         return;
       }
 
-      if (
-        !Buffer.isBuffer(req.body) ||
-        req.body.length === 0
-      ) {
+      if (!hasImageData(req.body)) {
         res.status(400).json({
           error: "画像データがありません",
         });
         return;
       }
-      // プロフィールが存在するか確認
 
       const profile = await prisma.profile.findUnique({
         where: { id },
@@ -88,32 +88,95 @@ router.put(
         });
         return;
       }
-      // プロフィール画像を更新し、更新されたプロフィール情報を返す
 
-      const updatedProfile =
-        await prisma.profile.update({
-          where: { id },
-          data: {
-            imageData: new Uint8Array(req.body),
-            imageMimeType: contentType,
-          },
-          select: {
-            id: true,
-            imageMimeType: true,
-            updatedAt: true,
-          },
-        });
-        // 更新されたプロフィール情報を返す
+      const updatedProfile = await prisma.profile.update({
+        where: { id },
+        data: {
+          imageData: new Uint8Array(req.body),
+          imageMimeType: contentType,
+        },
+        select: {
+          id: true,
+          imageMimeType: true,
+          updatedAt: true,
+        },
+      });
+
       res.status(200).json(updatedProfile);
     } catch (error) {
-      console.error(
-        "プロフィール画像更新エラー:",
-        error,
-      );
+      console.error("プロフィール画像更新エラー:", error);
 
       res.status(500).json({
-        error:
-          "プロフィール画像の更新に失敗しました",
+        error: "プロフィール画像の更新に失敗しました",
+      });
+    }
+  },
+);
+
+router.put(
+  "/works/:id/image",
+  raw({
+    type: allowedImageTypes,
+    limit: "1mb",
+  }),
+  async (req: Request, res: Response) => {
+    try {
+      const id = parseId(req.params.id);
+
+      if (id === null) {
+        res.status(400).json({
+          error: "実績IDが正しくありません",
+        });
+        return;
+      }
+
+      const contentType = getImageContentType(req);
+
+      if (!contentType) {
+        res.status(400).json({
+          error: "JPEG、PNG、WebPの画像を選択してください",
+        });
+        return;
+      }
+
+      if (!hasImageData(req.body)) {
+        res.status(400).json({
+          error: "画像データがありません",
+        });
+        return;
+      }
+
+      const work = await prisma.work.findUnique({
+        where: { id },
+        select: { id: true },
+      });
+
+      if (!work) {
+        res.status(404).json({
+          error: "実績が見つかりません",
+        });
+        return;
+      }
+
+      const updatedWork = await prisma.work.update({
+        where: { id },
+        data: {
+          imageData: new Uint8Array(req.body),
+          imageMimeType: contentType,
+        },
+        select: {
+          id: true,
+          imageMimeType: true,
+          updatedAt: true,
+        },
+      });
+
+      res.status(200).json(updatedWork);
+    } catch (error) {
+      console.error("作品画像更新エラー:", error);
+
+      res.status(500).json({
+        error: "作品画像の更新に失敗しました",
       });
     }
   },

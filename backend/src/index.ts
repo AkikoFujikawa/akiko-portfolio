@@ -48,8 +48,13 @@ function verifyInternalApiKey(
   );
 
   if (receivedApiKey !== configuredApiKey) {
-    res.status(404).json({
-      error: "Not Found",
+    console.error(
+      "管理APIのINTERNAL_API_KEYが一致しません。",
+    );
+
+    res.status(401).json({
+      error:
+        "管理APIの認証に失敗しました。フロントエンドとバックエンドのINTERNAL_API_KEYを確認してください。",
     });
     return;
   }
