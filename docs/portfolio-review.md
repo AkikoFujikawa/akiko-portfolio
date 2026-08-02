@@ -221,7 +221,7 @@ flowchart TD
     TOKEN[IDトークンをNext.jsへ送る]
     UID{UIDが<br/>FIREBASE_ADMIN_UIDと一致?}
     COOKIE[HttpOnlyセッションCookieを発行]
-    ADMIN[/adminを表示]
+    ADMIN["/admin を表示"]
     NOTFOUND[HTTP 404]
 
     LOGIN --> AUTH --> TOKEN --> UID
