@@ -1,14 +1,24 @@
 # Akiko Portfolio
 
-管理画面からプロフィール・実績・スキル・プロフィール画像を管理できる、ポートフォリオサイトです。
+学習して作った作品を、その都度コードを書き換えなくても管理画面から追加できるようにした、私自身のポートフォリオサイトです。
 
 公開画面のお問い合わせフォームから送信された内容は、Next.jsのサーバー機能とExpress APIを経由してPostgreSQLへ保存します。
 
 ## 制作目的
 
-これまでの仕事で培ったコミュニケーション力と、現在学習しているWeb開発の知識を紹介するために制作しました。
+これまでの仕事で培った「人に寄り添う力」と、現在学習しているWeb開発の知識を一つの画面で伝えるために制作しました。
 
-フロントエンド・バックエンド・データベース・認証を組み合わせ、一つのWebアプリケーションとして動作させることを目的としています。
+作品が増えても自分で登録・並び替えできること、公開画面と管理画面を安全に分けることを大切にしています。フロントエンド・バックエンド・データベース・認証をつなぎ、一つのWebアプリケーションとして動かすことにも挑戦しました。
+
+## このアプリで大切にしたこと
+
+| 大切にしたこと | 実装した仕組み |
+| --- | --- |
+| 学んだ作品を後から増やせる | 管理画面から実績・画像・技術・URLを登録 |
+| 見せたい順番を自分で変えられる | 実績とスキルの表示順を数値で管理 |
+| 管理画面を本人だけが使える | Firebase認証、管理者UID確認、未認証時の404 |
+| 画面だけで終わらせずデータを残す | Prismaを通してPostgreSQLへ保存 |
+| 問い合わせをあとから確認できる | `Contact`テーブルへ名前・メール・本文を保存 |
 
 ## 主な機能
 
@@ -23,16 +33,16 @@
 
 ### 管理画面
 
-* Firebase AuthenticationによるGoogleログイン
+* Firebase Authenticationによるメールアドレス・パスワードログイン
 * Firebase Admin SDKによるサーバー側の認証
 * 管理者UIDによるアクセス制限
 * セッションCookieによるログイン状態の管理
 * 未認証で`/admin`へアクセスした場合のHTTP 404応答
 * プロフィールの編集
 * 見出し・自己紹介で指定した改行の公開画面への反映
-* 実績の編集
-* スキルの登録
-* プロフィール画像の登録・更新
+* 実績の登録・編集・削除・並び替え
+* スキルの登録・編集・削除・並び替え
+* プロフィール画像・作品画像の登録・更新
 * 画像形式・ファイルサイズの入力チェック
 * ログアウト
 * 公開サイトを別タブで確認できるリンク
@@ -131,7 +141,9 @@ flowchart LR
 | `Skill`   | スキル名、説明、カテゴリー、表示順         |
 | `Contact` | お名前、メールアドレス、お問い合わせ内容、確認状態 |
 
-プロフィール画像はGitリポジトリへ保存せず、`Profile.imageData`と`Profile.imageMimeType`を使用してPostgreSQLへ保存します。
+プロフィール画像と作品画像はGitリポジトリへ保存せず、`Profile`・`Work`の`imageData`と`imageMimeType`を使用してPostgreSQLへ保存します。
+
+より詳しいER図・処理の流れ・画面とAPIの対応は、[技術ドキュメント](docs/portfolio-review.md)にまとめています。
 
 ## 主なExpress API
 
@@ -144,6 +156,7 @@ flowchart LR
 | GET  | `/api/works`         | 実績一覧取得       |
 | GET  | `/api/skills`        | スキル一覧取得      |
 | GET  | `/api/profile/image` | プロフィール画像取得   |
+| GET  | `/api/works/:id/image` | 作品画像取得   |
 | POST | `/api/contact`       | お問い合わせ登録     |
 
 ### 管理API
@@ -159,13 +172,14 @@ flowchart LR
 | POST   | `/api/admin/works`             | 実績登録       |
 | PUT    | `/api/admin/works/:id`         | 実績更新       |
 | DELETE | `/api/admin/works/:id`         | 実績削除       |
+| PUT    | `/api/admin/works/:id/image`   | 作品画像更新     |
 | POST   | `/api/admin/skills`            | スキル登録      |
 | PUT    | `/api/admin/skills/:id`        | スキル更新      |
 | DELETE | `/api/admin/skills/:id`        | スキル削除      |
 
 ## 認証・セキュリティ
 
-* Firebase AuthenticationによるGoogleログイン
+* Firebase Authenticationによるメールアドレス・パスワードログイン
 * Firebase Admin SDKによるIDトークン・セッションCookieの検証
 * 管理者UIDによる認可
 * 未認証・管理者以外の`/admin`アクセスにHTTP 404を返す処理
@@ -231,7 +245,21 @@ NEXT_PUBLIC_FIREBASE_APP_ID
 
 Firebase Admin SDK用の認証情報も、ローカルのサーバー環境で管理します。
 
+Firebase ConsoleのAuthenticationで「メール／パスワード」を有効にし、
+管理者ユーザーを1人作成します。そのユーザーのUIDを
+`FIREBASE_ADMIN_UID`へ設定してください。管理者以外のUIDで
+セッションを作成しようとした場合はHTTP 404を返します。
+
 `INTERNAL_API_KEY`は、フロントエンドとバックエンドへ同じ値を設定します。
+
+値が一致していない場合は、プロジェクトのルートで次を実行すると、
+安全なランダム値を生成して両方のファイルへ同じ値を設定できます。
+
+```bash
+node scripts/sync-internal-api-key.mjs
+```
+
+実行後は、ExpressとNext.jsを両方とも再起動してください。
 
 ## セットアップ
 
@@ -318,6 +346,7 @@ http://localhost:3000/admin/login
 
 ```bash
 cd frontend
+npm run test
 npm run lint
 npm run build
 ```
@@ -326,6 +355,8 @@ npm run build
 
 ```bash
 cd backend
+npm run test
+npm run lint
 npm run build
 ```
 
@@ -360,7 +391,7 @@ docker compose down
 | プロフィール・実績・スキル                 | PostgreSQLのデータを公開画面へ表示                          |
 | プロフィール画像                      | PostgreSQLへバイナリデータとして保存                         |
 | お問い合わせフォーム                    | Server ActionからExpressを経由してContactへ保存           |
-| Firebase認証・認可                 | Googleログイン・Admin SDK・管理者UIDで対応                  |
+| Firebase認証・認可                 | メール・パスワードログイン・Admin SDK・管理者UIDで対応      |
 | 未認証時のHTTP 404                 | `/admin`への未認証アクセスで対応                            |
 | 画像の登録・更新                      | 管理画面から実行可能                                      |
 | Firebase設定の環境変数管理             | `.env.local`で管理し、Git管理対象外に設定                    |
@@ -368,7 +399,6 @@ docker compose down
 ## 今後の改善
 
 * 管理画面でのお問い合わせ一覧・既読管理
-* 管理画面でのスキル編集・削除
-* 管理画面での実績登録・削除
-* 自動テストの追加
+* 画像の削除機能
+* フォーム送信結果を画面内へ表示する改善
 * 本番環境へのデプロイ
