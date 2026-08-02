@@ -1,5 +1,10 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../lib/prisma";
+import {
+  validateProfileInput,
+  validateSkillInput,
+  validateWorkInput,
+} from "../validation/admin-content";
 
 const router = Router();
 
@@ -20,36 +25,17 @@ function parseId(value: string | string[] | undefined): number | null {
 // プロフィールを登録
 router.post("/profile", async (req: Request, res: Response) => {
   try {
-    const { name, nameJa, headline, bio, location } = req.body;
+    const validation = validateProfileInput(req.body);
 
-    if (
-      typeof name !== "string" ||
-      name.trim() === "" ||
-      typeof headline !== "string" ||
-      headline.trim() === "" ||
-      typeof bio !== "string" ||
-      bio.trim() === ""
-    ) {
+    if (!validation.success) {
       res.status(400).json({
-        error: "name、headline、bioは必須です",
+        error: validation.error,
       });
       return;
     }
 
     const profile = await prisma.profile.create({
-      data: {
-        name: name.trim(),
-        nameJa:
-          typeof nameJa === "string" && nameJa.trim() !== ""
-            ? nameJa.trim()
-            : null,
-        headline: headline.trim(),
-        bio: bio.trim(),
-        location:
-          typeof location === "string" && location.trim() !== ""
-            ? location.trim()
-            : null,
-      },
+      data: validation.data,
     });
 
     res.status(201).json(profile);
@@ -73,18 +59,11 @@ router.put("/profile/:id", async (req: Request, res: Response) => {
       return;
     }
 
-    const { name, nameJa, headline, bio, location } = req.body;
+    const validation = validateProfileInput(req.body);
 
-    if (
-      typeof name !== "string" ||
-      name.trim() === "" ||
-      typeof headline !== "string" ||
-      headline.trim() === "" ||
-      typeof bio !== "string" ||
-      bio.trim() === ""
-    ) {
+    if (!validation.success) {
       res.status(400).json({
-        error: "name、headline、bioは必須です",
+        error: validation.error,
       });
       return;
     }
@@ -102,19 +81,7 @@ router.put("/profile/:id", async (req: Request, res: Response) => {
 
     const profile = await prisma.profile.update({
       where: { id },
-      data: {
-        name: name.trim(),
-        nameJa:
-          typeof nameJa === "string" && nameJa.trim() !== ""
-            ? nameJa.trim()
-            : null,
-        headline: headline.trim(),
-        bio: bio.trim(),
-        location:
-          typeof location === "string" && location.trim() !== ""
-            ? location.trim()
-            : null,
-      },
+      data: validation.data,
     });
 
     res.status(200).json(profile);
@@ -165,52 +132,17 @@ router.delete("/profile/:id", async (req: Request, res: Response) => {
 // 実績を登録
 router.post("/works", async (req: Request, res: Response) => {
   try {
-    const {
-      title,
-      description,
-      technologies,
-      githubUrl,
-      demoUrl,
-      displayOrder,
-    } = req.body;
+    const validation = validateWorkInput(req.body);
 
-    if (
-      typeof title !== "string" ||
-      title.trim() === "" ||
-      typeof description !== "string" ||
-      description.trim() === "" ||
-      !Array.isArray(technologies) ||
-      !technologies.every(
-        (technology: unknown) => typeof technology === "string",
-      )
-    ) {
+    if (!validation.success) {
       res.status(400).json({
-        error: "title、description、technologiesを正しく入力してください",
+        error: validation.error,
       });
       return;
     }
 
     const work = await prisma.work.create({
-      data: {
-        title: title.trim(),
-        description: description.trim(),
-        technologies: technologies
-          .map((technology: string) => technology.trim())
-          .filter((technology: string) => technology !== ""),
-        githubUrl:
-          typeof githubUrl === "string" && githubUrl.trim() !== ""
-            ? githubUrl.trim()
-            : null,
-        demoUrl:
-          typeof demoUrl === "string" && demoUrl.trim() !== ""
-            ? demoUrl.trim()
-            : null,
-        displayOrder:
-          typeof displayOrder === "number" &&
-          Number.isInteger(displayOrder)
-            ? displayOrder
-            : 0,
-      },
+      data: validation.data,
     });
 
     res.status(201).json(work);
@@ -234,27 +166,11 @@ router.put("/works/:id", async (req: Request, res: Response) => {
       return;
     }
 
-    const {
-      title,
-      description,
-      technologies,
-      githubUrl,
-      demoUrl,
-      displayOrder,
-    } = req.body;
+    const validation = validateWorkInput(req.body);
 
-    if (
-      typeof title !== "string" ||
-      title.trim() === "" ||
-      typeof description !== "string" ||
-      description.trim() === "" ||
-      !Array.isArray(technologies) ||
-      !technologies.every(
-        (technology: unknown) => typeof technology === "string",
-      )
-    ) {
+    if (!validation.success) {
       res.status(400).json({
-        error: "title、description、technologiesを正しく入力してください",
+        error: validation.error,
       });
       return;
     }
@@ -272,26 +188,7 @@ router.put("/works/:id", async (req: Request, res: Response) => {
 
     const work = await prisma.work.update({
       where: { id },
-      data: {
-        title: title.trim(),
-        description: description.trim(),
-        technologies: technologies
-          .map((technology: string) => technology.trim())
-          .filter((technology: string) => technology !== ""),
-        githubUrl:
-          typeof githubUrl === "string" && githubUrl.trim() !== ""
-            ? githubUrl.trim()
-            : null,
-        demoUrl:
-          typeof demoUrl === "string" && demoUrl.trim() !== ""
-            ? demoUrl.trim()
-            : null,
-        displayOrder:
-          typeof displayOrder === "number" &&
-          Number.isInteger(displayOrder)
-            ? displayOrder
-            : 0,
-      },
+      data: validation.data,
     });
 
     res.status(200).json(work);
@@ -342,32 +239,17 @@ router.delete("/works/:id", async (req: Request, res: Response) => {
 // スキルを登録
 router.post("/skills", async (req: Request, res: Response) => {
   try {
-    const { name, description, category, displayOrder } = req.body;
+    const validation = validateSkillInput(req.body);
 
-    if (typeof name !== "string" || name.trim() === "") {
+    if (!validation.success) {
       res.status(400).json({
-        error: "nameは必須です",
+        error: validation.error,
       });
       return;
     }
 
     const skill = await prisma.skill.create({
-      data: {
-        name: name.trim(),
-        description:
-          typeof description === "string" && description.trim() !== ""
-            ? description.trim()
-            : null,
-        category:
-          typeof category === "string" && category.trim() !== ""
-            ? category.trim()
-            : null,
-        displayOrder:
-          typeof displayOrder === "number" &&
-          Number.isInteger(displayOrder)
-            ? displayOrder
-            : 0,
-      },
+      data: validation.data,
     });
 
     res.status(201).json(skill);
@@ -391,11 +273,11 @@ router.put("/skills/:id", async (req: Request, res: Response) => {
       return;
     }
 
-    const { name, description, category, displayOrder } = req.body;
+    const validation = validateSkillInput(req.body);
 
-    if (typeof name !== "string" || name.trim() === "") {
+    if (!validation.success) {
       res.status(400).json({
-        error: "nameは必須です",
+        error: validation.error,
       });
       return;
     }
@@ -413,22 +295,7 @@ router.put("/skills/:id", async (req: Request, res: Response) => {
 
     const skill = await prisma.skill.update({
       where: { id },
-      data: {
-        name: name.trim(),
-        description:
-          typeof description === "string" && description.trim() !== ""
-            ? description.trim()
-            : null,
-        category:
-          typeof category === "string" && category.trim() !== ""
-            ? category.trim()
-            : null,
-        displayOrder:
-          typeof displayOrder === "number" &&
-          Number.isInteger(displayOrder)
-            ? displayOrder
-            : 0,
-      },
+      data: validation.data,
     });
 
     res.status(200).json(skill);

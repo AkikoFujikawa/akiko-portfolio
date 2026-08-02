@@ -3,9 +3,15 @@ import { getPortfolioContent } from "@/lib/portfolio-api";
 import { requireAdmin } from "@/lib/require-admin";
 import LogoutButton from "./logout-button";
 import ProfileImageForm from "./profile-image-form";
+import WorkImageForm from "./work-image-form";
+import DeleteButton from "./delete-button";
 import {
+  deleteSkill,
+  deleteWork,
+  createWork,
   createSkill,
   updateProfile,
+  updateSkill,
   updateWork,
 } from "./actions";
 
@@ -90,6 +96,7 @@ export default async function AdminPage() {
                 <input
                   type="text"
                   name="nameJa"
+                  maxLength={100}
                   defaultValue={
                     profile.nameJa ?? ""
                   }
@@ -106,6 +113,7 @@ export default async function AdminPage() {
                   type="text"
                   name="name"
                   required
+                  maxLength={100}
                   defaultValue={profile.name}
                   className={inputClassName}
                   placeholder="例：Akiko Fujikawa"
@@ -119,6 +127,7 @@ export default async function AdminPage() {
                 <textarea
                   name="headline"
                   required
+                  maxLength={200}
                   rows={2}
                   defaultValue={profile.headline}
                   className={inputClassName}
@@ -135,6 +144,7 @@ export default async function AdminPage() {
                 <textarea
                   name="bio"
                   required
+                  maxLength={2000}
                   rows={5}
                   defaultValue={profile.bio}
                   className={inputClassName}
@@ -149,6 +159,7 @@ export default async function AdminPage() {
                 <input
                   type="text"
                   name="location"
+                  maxLength={100}
                   defaultValue={
                     profile.location ?? ""
                   }
@@ -171,6 +182,114 @@ export default async function AdminPage() {
           )}
         </section>
 
+        {/* 実績登録 */}
+        <section className="mt-10 border-t border-slate-200 pt-8">
+          <h2 className="text-2xl font-semibold text-slate-800">
+            実績を追加
+          </h2>
+
+          <p className="mt-3 text-slate-600">
+            登録した実績は公開ページへ自動的に追加されます。
+          </p>
+
+          <form
+            action={createWork}
+            className="mt-6 grid gap-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-6"
+          >
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                タイトル
+              </span>
+              <input
+                type="text"
+                name="title"
+                required
+                maxLength={100}
+                className={inputClassName}
+                placeholder="例：MyIR"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                説明
+              </span>
+              <textarea
+                name="description"
+                required
+                maxLength={2000}
+                rows={4}
+                className={inputClassName}
+                placeholder="作品の内容や工夫した点を入力してください"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                使用技術
+              </span>
+              <input
+                type="text"
+                name="technologies"
+                required
+                maxLength={1000}
+                className={inputClassName}
+                placeholder="例：HTML, CSS, JavaScript"
+              />
+              <span className="text-sm text-slate-500">
+                複数の技術はカンマで区切ります。
+              </span>
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                GitHub URL
+              </span>
+              <input
+                type="url"
+                name="githubUrl"
+                maxLength={2048}
+                className={inputClassName}
+                placeholder="https://github.com/..."
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                デモURL
+              </span>
+              <input
+                type="url"
+                name="demoUrl"
+                maxLength={2048}
+                className={inputClassName}
+                placeholder="https://..."
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium text-slate-700">
+                表示順
+              </span>
+              <input
+                type="number"
+                name="displayOrder"
+                min="0"
+                max="9999"
+                defaultValue="0"
+                className={inputClassName}
+              />
+            </label>
+
+            <button
+              type="submit"
+              className="w-fit rounded-full bg-slate-800 px-7 py-3 font-medium text-white transition hover:bg-slate-600"
+            >
+              実績を追加
+            </button>
+          </form>
+        </section>
+
         {/* 実績編集 */}
         <section className="mt-10 border-t border-slate-200 pt-8">
           <h2 className="text-2xl font-semibold text-slate-800">
@@ -180,16 +299,27 @@ export default async function AdminPage() {
           {works.length > 0 ? (
             <div className="mt-6 grid gap-8">
               {works.map((work) => (
-                <form
+                <article
                   key={work.id}
-                  action={updateWork}
                   className="grid gap-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-6"
                 >
-                  <input
-                    type="hidden"
-                    name="id"
-                    value={work.id}
+                  <WorkImageForm
+                    workId={work.id}
+                    workTitle={work.title}
+                    hasImage={Boolean(
+                      work.imageMimeType,
+                    )}
                   />
+
+                  <form
+                    action={updateWork}
+                    className="grid gap-5"
+                  >
+                    <input
+                      type="hidden"
+                      name="id"
+                      value={work.id}
+                    />
 
                   <label className="grid gap-2">
                     <span className="font-medium text-slate-700">
@@ -199,6 +329,7 @@ export default async function AdminPage() {
                       type="text"
                       name="title"
                       required
+                      maxLength={100}
                       defaultValue={work.title}
                       className={inputClassName}
                     />
@@ -211,6 +342,7 @@ export default async function AdminPage() {
                     <textarea
                       name="description"
                       required
+                      maxLength={2000}
                       rows={4}
                       defaultValue={
                         work.description
@@ -227,6 +359,7 @@ export default async function AdminPage() {
                       type="text"
                       name="technologies"
                       required
+                      maxLength={1000}
                       defaultValue={work.technologies.join(
                         ", ",
                       )}
@@ -245,6 +378,7 @@ export default async function AdminPage() {
                     <input
                       type="url"
                       name="githubUrl"
+                      maxLength={2048}
                       defaultValue={
                         work.githubUrl ?? ""
                       }
@@ -260,6 +394,7 @@ export default async function AdminPage() {
                     <input
                       type="url"
                       name="demoUrl"
+                      maxLength={2048}
                       defaultValue={
                         work.demoUrl ?? ""
                       }
@@ -276,6 +411,7 @@ export default async function AdminPage() {
                       type="number"
                       name="displayOrder"
                       min="0"
+                      max="9999"
                       defaultValue={
                         work.displayOrder
                       }
@@ -283,13 +419,27 @@ export default async function AdminPage() {
                     />
                   </label>
 
-                  <button
-                    type="submit"
-                    className="w-fit rounded-full bg-slate-800 px-7 py-3 font-medium text-white transition hover:bg-slate-600"
-                  >
-                    実績を更新
-                  </button>
-                </form>
+                    <button
+                      type="submit"
+                      className="w-fit rounded-full bg-slate-800 px-7 py-3 font-medium text-white transition hover:bg-slate-600"
+                    >
+                      実績を更新
+                    </button>
+                  </form>
+
+                  <form action={deleteWork}>
+                    <input
+                      type="hidden"
+                      name="id"
+                      value={work.id}
+                    />
+                    <DeleteButton
+                      confirmationMessage={`「${work.title}」を削除しますか？`}
+                    >
+                      実績を削除
+                    </DeleteButton>
+                  </form>
+                </article>
               ))}
             </div>
           ) : (
@@ -317,6 +467,7 @@ export default async function AdminPage() {
                 type="text"
                 name="name"
                 required
+                maxLength={100}
                 className={inputClassName}
                 placeholder="例：TypeScript"
               />
@@ -328,6 +479,7 @@ export default async function AdminPage() {
               </span>
               <textarea
                 name="description"
+                maxLength={500}
                 rows={3}
                 className={inputClassName}
                 placeholder="例：型を利用した安全なコード作成"
@@ -341,6 +493,7 @@ export default async function AdminPage() {
               <input
                 type="text"
                 name="category"
+                maxLength={100}
                 className={inputClassName}
                 placeholder="例：Language"
               />
@@ -354,6 +507,7 @@ export default async function AdminPage() {
                 type="number"
                 name="displayOrder"
                 min="0"
+                max="9999"
                 defaultValue={skills.length + 1}
                 className={inputClassName}
               />
@@ -374,16 +528,105 @@ export default async function AdminPage() {
             登録済みスキル
           </h2>
 
-          <div className="mt-5 flex flex-wrap gap-3">
-            {skills.map((skill) => (
-              <span
-                key={skill.id}
-                className="rounded-full bg-sky-100 px-4 py-2 text-slate-700"
-              >
-                {skill.name}
-              </span>
-            ))}
-          </div>
+          {skills.length > 0 ? (
+            <div className="mt-6 grid gap-6">
+              {skills.map((skill) => (
+                <article
+                  key={skill.id}
+                  className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-6"
+                >
+                  <form
+                    action={updateSkill}
+                    className="grid gap-5"
+                  >
+                    <input
+                      type="hidden"
+                      name="id"
+                      value={skill.id}
+                    />
+
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">
+                        スキル名
+                      </span>
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        maxLength={100}
+                        defaultValue={skill.name}
+                        className={inputClassName}
+                      />
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">
+                        説明
+                      </span>
+                      <textarea
+                        name="description"
+                        rows={3}
+                        maxLength={500}
+                        defaultValue={skill.description ?? ""}
+                        className={inputClassName}
+                      />
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">
+                        カテゴリー
+                      </span>
+                      <input
+                        type="text"
+                        name="category"
+                        maxLength={100}
+                        defaultValue={skill.category ?? ""}
+                        className={inputClassName}
+                      />
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">
+                        表示順
+                      </span>
+                      <input
+                        type="number"
+                        name="displayOrder"
+                        min="0"
+                        max="9999"
+                        defaultValue={skill.displayOrder}
+                        className={inputClassName}
+                      />
+                    </label>
+
+                    <button
+                      type="submit"
+                      className="w-fit rounded-full bg-slate-800 px-7 py-3 font-medium text-white transition hover:bg-slate-600"
+                    >
+                      スキルを更新
+                    </button>
+                  </form>
+
+                  <form action={deleteSkill}>
+                    <input
+                      type="hidden"
+                      name="id"
+                      value={skill.id}
+                    />
+                    <DeleteButton
+                      confirmationMessage={`「${skill.name}」を削除しますか？`}
+                    >
+                      スキルを削除
+                    </DeleteButton>
+                  </form>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-6 text-slate-600">
+              登録済みのスキルがありません。
+            </p>
+          )}
         </section>
       </section>
     </main>

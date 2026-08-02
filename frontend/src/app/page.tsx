@@ -71,25 +71,6 @@ export default async function Home() {
             </a>
           </nav>
 
-          {/* 管理者ログインを別タブで開く */}
-          <Link
-            href="/admin/login"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="管理者ログインを新しいタブで開く"
-            className="whitespace-nowrap rounded-full border border-[#4a4a4a]/20 bg-white/30 px-3 py-2 text-xs text-[#4a4a4a]/70 transition hover:bg-white/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
-          >
-            管理者ログイン
-            <span className="ml-1 hidden lg:inline">
-
-            </span>
-            <span
-              aria-hidden="true"
-              className="ml-1 lg:hidden"
-            >
-              ↗
-            </span>
-          </Link>
         </div>
       </header>
 
@@ -247,10 +228,21 @@ export default async function Home() {
               key={work.id}
               className="rounded-2xl bg-white/40 p-8 shadow-sm transition hover:-translate-y-1 hover:bg-white/60"
             >
-              <div className="mb-6 flex h-48 items-center justify-center rounded-xl bg-white/30">
-                <span className="text-sm">
-                  作品画像
-                </span>
+              <div className="relative mb-6 flex h-48 items-center justify-center overflow-hidden rounded-xl bg-white/30">
+                {work.imageMimeType ? (
+                  <Image
+                    src={`/api/work-image/${work.id}`}
+                    alt={`${work.title}の作品画像`}
+                    fill
+                    sizes="(min-width: 768px) 512px, calc(100vw - 80px)"
+                    unoptimized
+                    className="object-cover"
+                  />
+                ) : (
+                  <span className="text-sm">
+                    作品画像
+                  </span>
+                )}
               </div>
 
               <h3 className="mb-3 text-2xl font-semibold">
@@ -273,6 +265,40 @@ export default async function Home() {
                   ),
                 )}
               </div>
+
+              {(work.githubUrl || work.demoUrl) && (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {work.githubUrl && (
+                    <a
+                      href={work.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${work.title}のGitHubを新しいタブで開く`}
+                      className="inline-flex items-center rounded-full bg-white/70 px-5 py-2.5 text-sm font-semibold shadow-sm ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
+                    >
+                      GitHubを見る
+                      <span aria-hidden="true" className="ml-2">
+                        ↗
+                      </span>
+                    </a>
+                  )}
+
+                  {work.demoUrl && (
+                    <a
+                      href={work.demoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${work.title}のデモを新しいタブで開く`}
+                      className="inline-flex items-center rounded-full bg-white/70 px-5 py-2.5 text-sm font-semibold shadow-sm ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
+                    >
+                      デモを見る
+                      <span aria-hidden="true" className="ml-2">
+                        ↗
+                      </span>
+                    </a>
+                  )}
+                </div>
+              )}
             </article>
           ))}
         </div>
@@ -329,6 +355,19 @@ export default async function Home() {
       {/* フッター */}
       <footer className="border-t border-white/20 py-8 text-center text-sm">
         <p>© 2026 Akiko Fujikawa</p>
+
+        <Link
+          href="/admin/login"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="管理者ログインを新しいタブで開く"
+          className="mt-4 inline-block text-xs text-[#4a4a4a]/55 transition hover:text-[#4a4a4a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
+        >
+          管理者ログイン
+          <span aria-hidden="true" className="ml-1">
+            ↗
+          </span>
+        </Link>
       </footer>
     </main>
   );
