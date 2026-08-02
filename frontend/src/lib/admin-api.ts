@@ -40,8 +40,22 @@ export async function adminApiFetch(
   );
 
   if (!response.ok) {
+    let errorDetail = "";
+
+    try {
+      const responseBody = (await response.json()) as {
+        error?: unknown;
+      };
+
+      if (typeof responseBody.error === "string") {
+        errorDetail = `: ${responseBody.error}`;
+      }
+    } catch {
+      // JSON以外のエラーレスポンスではステータスだけを表示します。
+    }
+
     throw new Error(
-      `Express管理APIの処理に失敗しました: ${response.status}`,
+      `Express管理APIの処理に失敗しました: ${response.status}${errorDetail}`,
     );
   }
 

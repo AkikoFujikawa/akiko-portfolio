@@ -3,6 +3,22 @@ import { prisma } from "../lib/prisma";
 
 const router = Router();
 
+function parseId(
+  value: string | string[] | undefined,
+): number | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const id = Number(value);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return null;
+  }
+
+  return id;
+}
+
 router.get(
   "/profile/image",
   async (_req: Request, res: Response) => {
@@ -45,6 +61,53 @@ router.get(
       res.status(500).json({
         error:
           "プロフィール画像の取得に失敗しました",
+      });
+    }
+  },
+);
+
+router.get(
+  "/works/:id/image",
+  async (req: Request, res: Response) => {
+    try {
+      const id = parseId(req.params.id);
+
+      if (id === null) {
+        res.status(400).json({
+          error: "実績IDが正しくありません",
+        });
+        return;
+      }
+
+      const work = await prisma.work.findUnique({
+        where: { id },
+        select: {
+          imageData: true,
+          imageMimeType: true,
+        },
+      });
+
+      if (!work?.imageData || !work.imageMimeType) {
+        res.status(404).json({
+          error: "作品画像がありません",
+        });
+        return;
+      }
+
+      res.setHeader(
+        "Content-Type",
+        work.imageMimeType,
+      );
+      res.setHeader("Cache-Control", "no-store");
+
+      res
+        .status(200)
+        .send(Buffer.from(work.imageData));
+    } catch (error) {
+      console.error("作品画像取得エラー:", error);
+
+      res.status(500).json({
+        error: "作品画像の取得に失敗しました",
       });
     }
   },
