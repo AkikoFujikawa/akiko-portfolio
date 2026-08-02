@@ -1,36 +1,135 @@
 "use server";
 
-// フォームの内容をNext.jsサーバーで受け取り、
-// 認証を確認してからExpressへ送ります。
 import { revalidatePath } from "next/cache";
 import { adminApiFetch } from "@/lib/admin-api";
+import {
+  assertMaximumLength,
+  parseDisplayOrder,
+  parsePositiveId,
+  parseTechnologies,
+  validateOptionalHttpUrl,
+} from "@/lib/admin-form-validation";
 import { requireAdmin } from "@/lib/require-admin";
+
+const allowedImageTypes = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
+const maximumImageSize = 1024 * 1024;
+
+function text(formData: FormData, name: string): string {
+  return String(formData.get(name) ?? "").trim();
+}
+
+function revalidatePortfolio(): void {
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/api/portfolio");
+}
+
+function validateImage(
+  value: FormDataEntryValue | null,
+  label: string,
+): File {
+  if (!(value instanceof File) || value.size === 0) {
+    throw new Error(`${label}を選択してください`);
+  }
+
+  if (!allowedImageTypes.includes(value.type)) {
+    throw new Error("JPEG、PNG、WebPの画像を選択してください");
+  }
+
+  if (value.size > maximumImageSize) {
+    throw new Error("画像サイズは1MB以下にしてください");
+  }
+
+  return value;
+}
+
+function parseWorkForm(formData: FormData) {
+  const title = text(formData, "title");
+  const description = text(formData, "description");
+  const technologies = parseTechnologies(
+    text(formData, "technologies"),
+  );
+  const githubUrl = validateOptionalHttpUrl(
+    text(formData, "githubUrl"),
+    "GitHub URL",
+  );
+  const demoUrl = validateOptionalHttpUrl(
+    text(formData, "demoUrl"),
+    "デモURL",
+  );
+  const displayOrder = parseDisplayOrder(
+    formData.get("displayOrder"),
+  );
+
+  if (!title || !description) {
+    throw new Error("タイトル、説明、使用技術は必須です");
+  }
+
+  assertMaximumLength(title, "タイトル", 100);
+  assertMaximumLength(description, "説明", 2000);
+
+  return {
+    title,
+    description,
+    technologies,
+    githubUrl: githubUrl || null,
+    demoUrl: demoUrl || null,
+    displayOrder,
+  };
+}
+
+function parseSkillForm(formData: FormData) {
+  const name = text(formData, "name");
+  const description = text(formData, "description");
+  const category = text(formData, "category");
+  const displayOrder = parseDisplayOrder(
+    formData.get("displayOrder"),
+  );
+
+  if (!name) {
+    throw new Error("スキル名は必須です");
+  }
+
+  assertMaximumLength(name, "スキル名", 100);
+  assertMaximumLength(description, "説明", 500);
+  assertMaximumLength(category, "カテゴリー", 100);
+
+  return {
+    name,
+    description: description || null,
+    category: category || null,
+    displayOrder,
+  };
+}
 
 export async function updateProfile(
   formData: FormData,
 ): Promise<void> {
   await requireAdmin();
 
-  const id = Number(formData.get("id"));
-  const name = String(formData.get("name") ?? "").trim();
-  const nameJa = String(formData.get("nameJa") ?? "").trim();
-  const headline = String(
-    formData.get("headline") ?? "",
-  ).trim();
-  const bio = String(formData.get("bio") ?? "").trim();
-  const location = String(
-    formData.get("location") ?? "",
-  ).trim();
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new Error("プロフィールIDが正しくありません");
-  }
+  const id = parsePositiveId(
+    formData.get("id"),
+    "プロフィール",
+  );
+  const name = text(formData, "name");
+  const nameJa = text(formData, "nameJa");
+  const headline = text(formData, "headline");
+  const bio = text(formData, "bio");
+  const location = text(formData, "location");
 
   if (!name || !headline || !bio) {
-    throw new Error(
-      "英語名、見出し、自己紹介は必須です",
-    );
+    throw new Error("英語名、見出し、自己紹介は必須です");
   }
+
+  assertMaximumLength(name, "英語名", 100);
+  assertMaximumLength(nameJa, "日本語名", 100);
+  assertMaximumLength(headline, "見出し", 200);
+  assertMaximumLength(bio, "自己紹介", 2000);
+  assertMaximumLength(location, "地域", 100);
 
   await adminApiFetch(`/api/admin/profile/${id}`, {
     method: "PUT",
@@ -43,9 +142,20 @@ export async function updateProfile(
     }),
   });
 
-  revalidatePath("/admin");
-  revalidatePath("/");
-  revalidatePath("/api/portfolio");
+  revalidatePortfolio();
+}
+
+export async function createWork(
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+
+  await adminApiFetch("/api/admin/works", {
+    method: "POST",
+    body: JSON.stringify(parseWorkForm(formData)),
+  });
+
+  revalidatePortfolio();
 }
 
 export async function updateWork(
@@ -53,60 +163,29 @@ export async function updateWork(
 ): Promise<void> {
   await requireAdmin();
 
-  const id = Number(formData.get("id"));
-  const title = String(
-    formData.get("title") ?? "",
-  ).trim();
-  const description = String(
-    formData.get("description") ?? "",
-  ).trim();
-  const technologiesText = String(
-    formData.get("technologies") ?? "",
-  ).trim();
-  const githubUrl = String(
-    formData.get("githubUrl") ?? "",
-  ).trim();
-  const demoUrl = String(
-    formData.get("demoUrl") ?? "",
-  ).trim();
-  const displayOrderValue = Number(
-    formData.get("displayOrder") ?? 0,
-  );
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new Error("実績IDが正しくありません");
-  }
-
-  const technologies = technologiesText
-    .split(/[,、]/)
-    .map((technology) => technology.trim())
-    .filter(Boolean);
-
-  if (!title || !description || technologies.length === 0) {
-    throw new Error(
-      "タイトル、説明、使用技術は必須です",
-    );
-  }
-
-  const displayOrder = Number.isInteger(displayOrderValue)
-    ? displayOrderValue
-    : 0;
+  const id = parsePositiveId(formData.get("id"), "実績");
 
   await adminApiFetch(`/api/admin/works/${id}`, {
     method: "PUT",
-    body: JSON.stringify({
-      title,
-      description,
-      technologies,
-      githubUrl: githubUrl || null,
-      demoUrl: demoUrl || null,
-      displayOrder,
-    }),
+    body: JSON.stringify(parseWorkForm(formData)),
   });
 
-  revalidatePath("/admin");
-  revalidatePath("/");
-  revalidatePath("/api/portfolio");
+  revalidatePortfolio();
+}
+
+export async function deleteWork(
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+
+  const id = parsePositiveId(formData.get("id"), "実績");
+
+  await adminApiFetch(`/api/admin/works/${id}`, {
+    method: "DELETE",
+  });
+
+  revalidatePortfolio();
+  revalidatePath(`/api/work-image/${id}`);
 }
 
 export async function createSkill(
@@ -114,92 +193,88 @@ export async function createSkill(
 ): Promise<void> {
   await requireAdmin();
 
-  const name = String(formData.get("name") ?? "").trim();
-  const description = String(
-    formData.get("description") ?? "",
-  ).trim();
-  const category = String(
-    formData.get("category") ?? "",
-  ).trim();
-  const displayOrderValue = Number(
-    formData.get("displayOrder") ?? 0,
-  );
-
-  if (!name) {
-    throw new Error("スキル名は必須です");
-  }
-
-  const displayOrder = Number.isInteger(displayOrderValue)
-    ? displayOrderValue
-    : 0;
-
   await adminApiFetch("/api/admin/skills", {
     method: "POST",
-    body: JSON.stringify({
-      name,
-      description: description || null,
-      category: category || null,
-      displayOrder,
-    }),
+    body: JSON.stringify(parseSkillForm(formData)),
   });
 
-  revalidatePath("/admin");
-  revalidatePath("/");
-  revalidatePath("/api/portfolio");
+  revalidatePortfolio();
 }
+
+export async function updateSkill(
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+
+  const id = parsePositiveId(formData.get("id"), "スキル");
+
+  await adminApiFetch(`/api/admin/skills/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(parseSkillForm(formData)),
+  });
+
+  revalidatePortfolio();
+}
+
+export async function deleteSkill(
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+
+  const id = parsePositiveId(formData.get("id"), "スキル");
+
+  await adminApiFetch(`/api/admin/skills/${id}`, {
+    method: "DELETE",
+  });
+
+  revalidatePortfolio();
+}
+
 export async function updateProfileImage(
   formData: FormData,
 ): Promise<void> {
   await requireAdmin();
 
-  const id = Number(formData.get("id"));
-  const image = formData.get("image");
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new Error(
-      "プロフィールIDが正しくありません",
-    );
-  }
-
-  if (!(image instanceof File) || image.size === 0) {
-    throw new Error(
-      "プロフィール画像を選択してください",
-    );
-  }
-
-  const allowedImageTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-  ];
-
-  if (!allowedImageTypes.includes(image.type)) {
-    throw new Error(
-      "JPEG、PNG、WebPの画像を選択してください",
-    );
-  }
-
-  const maximumImageSize = 1024 * 1024;
-
-  if (image.size > maximumImageSize) {
-    throw new Error(
-      "画像サイズは1MB以下にしてください",
-    );
-  }
-
-  await adminApiFetch(
-    `/api/admin/profile/${id}/image`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": image.type,
-      },
-      body: await image.arrayBuffer(),
-    },
+  const id = parsePositiveId(
+    formData.get("id"),
+    "プロフィール",
+  );
+  const image = validateImage(
+    formData.get("image"),
+    "プロフィール画像",
   );
 
-  revalidatePath("/admin");
-  revalidatePath("/");
+  await adminApiFetch(`/api/admin/profile/${id}/image`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": image.type,
+    },
+    body: await image.arrayBuffer(),
+  });
+
+  revalidatePortfolio();
   revalidatePath("/api/profile-image");
-  revalidatePath("/api/portfolio");
+}
+
+export async function updateWorkImage(
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+
+  const id = parsePositiveId(formData.get("id"), "実績");
+  const image = validateImage(
+    formData.get("image"),
+    "作品画像",
+  );
+
+  await adminApiFetch(`/api/admin/works/${id}/image`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": image.type,
+    },
+    body: await image.arrayBuffer(),
+  });
+
+  revalidatePortfolio();
+  revalidatePath(`/api/work-image/${id}`);
 }
