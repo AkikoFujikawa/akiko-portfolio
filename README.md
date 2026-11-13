@@ -241,9 +241,16 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 NEXT_PUBLIC_FIREBASE_APP_ID
+FIREBASE_CLIENT_EMAIL
+FIREBASE_PRIVATE_KEY
 ```
 
-Firebase Admin SDK用の認証情報も、ローカルのサーバー環境で管理します。
+見本は`frontend/.env.example`にあります。
+
+`FIREBASE_CLIENT_EMAIL`と`FIREBASE_PRIVATE_KEY`は、Firebase Admin SDK用の認証情報です。
+Firebase Consoleの「プロジェクトの設定」→「サービスアカウント」→「新しい秘密鍵を生成」でダウンロードしたJSONの、`client_email`と`private_key`を設定します。
+`private_key`は`"`で囲み、`\n`を含んだ1行のまま貼り付けます。
+ダウンロードしたJSONファイルはリポジトリ内に置かず、値を設定した後は安全な場所で保管するか削除してください。
 
 Firebase ConsoleのAuthenticationで「メール／パスワード」を有効にし、
 管理者ユーザーを1人作成します。そのユーザーのUIDを
