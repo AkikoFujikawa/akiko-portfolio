@@ -1,7 +1,7 @@
 //これまでadmin/page.tsxに書いていた認証処理を、管理用のサーバー処理でも再利用
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { adminAuth } from "@/lib/firebase-admin";
+import { getAdminAuth } from "@/lib/firebase-admin";
 
 export async function requireAdmin(): Promise<void> {
   const cookieStore = await cookies();
@@ -14,7 +14,7 @@ export async function requireAdmin(): Promise<void> {
   let uid: string;
 
   try {
-    const decodedToken = await adminAuth.verifySessionCookie(
+    const decodedToken = await getAdminAuth().verifySessionCookie(
       sessionCookie,
       true,
     );
