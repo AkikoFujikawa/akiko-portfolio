@@ -8,9 +8,7 @@ type ValidationFailure = {
   error: string;
 };
 
-export type ValidationResult<T> =
-  | ValidationSuccess<T>
-  | ValidationFailure;
+export type ValidationResult<T> = ValidationSuccess<T> | ValidationFailure;
 
 export type ProfileInput = {
   name: string;
@@ -135,11 +133,7 @@ function optionalHttpUrl(
   value: unknown,
   label: string,
 ): ValidationResult<string | null> {
-  const textResult = optionalText(
-    value,
-    label,
-    limits.work.url,
-  );
+  const textResult = optionalText(value, label, limits.work.url);
 
   if (!textResult.success || textResult.data === null) {
     return textResult;
@@ -161,9 +155,7 @@ function optionalHttpUrl(
   return textResult;
 }
 
-function displayOrder(
-  value: unknown,
-): ValidationResult<number> {
+function displayOrder(value: unknown): ValidationResult<number> {
   if (
     typeof value !== "number" ||
     !Number.isInteger(value) ||
@@ -192,26 +184,14 @@ export function validateProfileInput(
     };
   }
 
-  const name = requiredText(
-    value.name,
-    "英語名",
-    limits.profile.name,
-  );
-  const nameJa = optionalText(
-    value.nameJa,
-    "日本語名",
-    limits.profile.nameJa,
-  );
+  const name = requiredText(value.name, "英語名", limits.profile.name);
+  const nameJa = optionalText(value.nameJa, "日本語名", limits.profile.nameJa);
   const headline = requiredText(
     value.headline,
     "見出し",
     limits.profile.headline,
   );
-  const bio = requiredText(
-    value.bio,
-    "自己紹介",
-    limits.profile.bio,
-  );
+  const bio = requiredText(value.bio, "自己紹介", limits.profile.bio);
   const location = optionalText(
     value.location,
     "地域",
@@ -236,9 +216,7 @@ export function validateProfileInput(
   };
 }
 
-export function validateWorkInput(
-  value: unknown,
-): ValidationResult<WorkInput> {
+export function validateWorkInput(value: unknown): ValidationResult<WorkInput> {
   if (!isObject(value)) {
     return {
       success: false,
@@ -246,11 +224,7 @@ export function validateWorkInput(
     };
   }
 
-  const title = requiredText(
-    value.title,
-    "タイトル",
-    limits.work.title,
-  );
+  const title = requiredText(value.title, "タイトル", limits.work.title);
   const description = requiredText(
     value.description,
     "説明",
@@ -274,8 +248,8 @@ export function validateWorkInput(
   }
 
   const technologies = value.technologies
-    .filter((technology): technology is string =>
-      typeof technology === "string",
+    .filter(
+      (technology): technology is string => typeof technology === "string",
     )
     .map((technology) => technology.trim())
     .filter(Boolean);
@@ -299,8 +273,7 @@ export function validateWorkInput(
 
   if (
     technologies.some(
-      (technology) =>
-        technology.length > limits.work.technology,
+      (technology) => technology.length > limits.work.technology,
     )
   ) {
     return {
@@ -332,11 +305,7 @@ export function validateSkillInput(
     };
   }
 
-  const name = requiredText(
-    value.name,
-    "スキル名",
-    limits.skill.name,
-  );
+  const name = requiredText(value.name, "スキル名", limits.skill.name);
   const description = optionalText(
     value.description,
     "説明",

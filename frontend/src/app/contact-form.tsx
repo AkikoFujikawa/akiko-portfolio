@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useActionState,
-  useEffect,
-  useRef,
-} from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { sendContact } from "./contact-actions";
 
 const initialState = {
@@ -16,8 +12,10 @@ const initialState = {
 export default function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [state, formAction, isPending] =
-    useActionState(sendContact, initialState);
+  const [state, formAction, isPending] = useActionState(
+    sendContact,
+    initialState,
+  );
 
   useEffect(() => {
     if (state.success) {
@@ -32,9 +30,7 @@ export default function ContactForm() {
       className="mt-8 grid gap-5 text-left"
     >
       <label className="grid gap-2">
-        <span className="font-medium">
-          お名前
-        </span>
+        <span className="font-medium">お名前</span>
 
         <input
           type="text"
@@ -47,9 +43,7 @@ export default function ContactForm() {
       </label>
 
       <label className="grid gap-2">
-        <span className="font-medium">
-          メールアドレス
-        </span>
+        <span className="font-medium">メールアドレス</span>
 
         <input
           type="email"
@@ -62,9 +56,7 @@ export default function ContactForm() {
       </label>
 
       <label className="grid gap-2">
-        <span className="font-medium">
-          お問い合わせ内容
-        </span>
+        <span className="font-medium">お問い合わせ内容</span>
 
         <textarea
           name="message"

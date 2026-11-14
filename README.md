@@ -353,6 +353,7 @@ http://localhost:3000/admin/login
 
 ```bash
 cd frontend
+npm run format:check
 npm run test
 npm run lint
 npm run build
@@ -362,10 +363,14 @@ npm run build
 
 ```bash
 cd backend
+npm run format:check
 npm run test
 npm run lint
 npm run build
 ```
+
+`format:check`で整形のずれが見つかった場合は、`npm run format`で自動整形できます。
+Node.jsのバージョンは`.nvmrc`（24）にそろえています。
 
 ### Prisma
 

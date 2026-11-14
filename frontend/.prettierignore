@@ -1,0 +1,10 @@
+# 自動生成・ビルド結果
+node_modules/
+.next/
+out/
+package-lock.json
+next-env.d.ts
+
+# 環境変数ファイル・ドキュメント
+.env*
+*.md

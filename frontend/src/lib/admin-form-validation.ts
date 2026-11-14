@@ -18,9 +18,7 @@ export function parsePositiveId(
   return id;
 }
 
-export function parseDisplayOrder(
-  value: FormDataEntryValue | null,
-): number {
+export function parseDisplayOrder(value: FormDataEntryValue | null): number {
   const displayOrder = Number(value);
 
   if (
@@ -36,10 +34,7 @@ export function parseDisplayOrder(
   return displayOrder;
 }
 
-export function validateOptionalHttpUrl(
-  value: string,
-  label: string,
-): string {
+export function validateOptionalHttpUrl(value: string, label: string): string {
   if (!value) {
     return "";
   }
@@ -55,9 +50,7 @@ export function validateOptionalHttpUrl(
       throw new Error("Unsupported protocol");
     }
   } catch {
-    throw new Error(
-      `${label}はhttpまたはhttpsのURLを入力してください`,
-    );
+    throw new Error(`${label}はhttpまたはhttpsのURLを入力してください`);
   }
 
   return value;
@@ -80,10 +73,7 @@ export function parseTechnologies(value: string): string[] {
   }
 
   if (
-    technologies.some(
-      (technology) =>
-        technology.length > limits.technology,
-    )
+    technologies.some((technology) => technology.length > limits.technology)
   ) {
     throw new Error(
       `使用技術は1項目${limits.technology}文字以内で入力してください`,
@@ -99,8 +89,6 @@ export function assertMaximumLength(
   maximumLength: number,
 ): void {
   if (value.length > maximumLength) {
-    throw new Error(
-      `${label}は${maximumLength}文字以内で入力してください`,
-    );
+    throw new Error(`${label}は${maximumLength}文字以内で入力してください`);
   }
 }

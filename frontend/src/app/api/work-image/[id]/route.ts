@@ -55,8 +55,7 @@ export async function GET(
 
     const imageData = await response.arrayBuffer();
     const contentType =
-      response.headers.get("content-type") ??
-      "application/octet-stream";
+      response.headers.get("content-type") ?? "application/octet-stream";
 
     return new NextResponse(imageData, {
       status: 200,
