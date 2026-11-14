@@ -157,7 +157,14 @@ flowchart LR
 | GET  | `/api/skills`        | スキル一覧取得      |
 | GET  | `/api/profile/image` | プロフィール画像取得   |
 | GET  | `/api/works/:id/image` | 作品画像取得   |
-| POST | `/api/contact`       | お問い合わせ登録     |
+
+### お問い合わせAPI
+
+内部APIキーで保護し、Next.jsサーバー（Server Action）からだけアクセスします。
+
+| メソッド | パス             | 内容       |
+| ---- | -------------- | -------- |
+| POST | `/api/contact` | お問い合わせ登録 |
 
 ### 管理API
 
@@ -184,8 +191,12 @@ flowchart LR
 * 管理者UIDによる認可
 * 未認証・管理者以外の`/admin`アクセスにHTTP 404を返す処理
 * `httpOnly`のセッションCookie
-* 内部APIキーによるExpress管理APIの保護
+* 内部APIキーによるExpress管理API・お問い合わせAPIの保護（`timingSafeEqual`で比較）
 * Next.jsサーバーからExpress管理APIへのアクセス
+* `helmet`によるセキュリティ用HTTPヘッダーの付与
+* お問い合わせのスパム対策
+  * ハニーポット（人には見えない入力欄に入力があれば保存しない）
+  * サイト全体の回数制限（直近10分で10件まで。超えた場合はHTTP 429）
 * フロントエンドとバックエンド双方での入力チェック
 * 画像のMIMEタイプとファイルサイズの確認
 * `.env`と`.env.local`のGit管理対象外設定

@@ -5,6 +5,7 @@ import contentRouter from "./routes/content";
 import adminRouter from "./routes/admin";
 import imageRouter from "./routes/images";
 import profileImageRouter from "./routes/profile-image";
+import contactRouter from "./routes/contact";
 import { isValidInternalApiKey } from "./lib/internal-api-key";
 
 const app = express();
@@ -24,7 +25,8 @@ app.get("/health", (_req: Request, res: Response) => {
   });
 });
 
-// 管理APIへ送られた内部APIキーを確認する
+// 内部APIキーを確認し、Next.js のサーバーからの呼び出しだけを通す
+// （管理APIとお問い合わせAPIで使う）
 function verifyInternalApiKey(req: Request, res: Response, next: NextFunction) {
   const configuredApiKey = process.env.INTERNAL_API_KEY;
 
@@ -40,17 +42,20 @@ function verifyInternalApiKey(req: Request, res: Response, next: NextFunction) {
   const receivedApiKey = req.header("x-internal-api-key");
 
   if (!isValidInternalApiKey(receivedApiKey, configuredApiKey)) {
-    console.error("管理APIのINTERNAL_API_KEYが一致しません。");
+    console.error(`INTERNAL_API_KEYが一致しません: ${req.method} ${req.path}`);
 
     res.status(401).json({
       error:
-        "管理APIの認証に失敗しました。フロントエンドとバックエンドのINTERNAL_API_KEYを確認してください。",
+        "内部APIの認証に失敗しました。フロントエンドとバックエンドのINTERNAL_API_KEYを確認してください。",
     });
     return;
   }
 
   next();
 }
+
+// お問い合わせの登録（Next.js のサーバー経由のみ）
+app.use("/api/contact", verifyInternalApiKey, contactRouter);
 
 // トップページから使用する公開用API
 app.use("/api", imageRouter, contentRouter);

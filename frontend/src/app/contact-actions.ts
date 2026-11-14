@@ -1,5 +1,9 @@
 "use server";
 
+import { isHoneypotFilled } from "@/lib/contact-honeypot";
+
+const SUCCESS_MESSAGE = "お問い合わせを送信しました。ありがとうございます。";
+
 type ContactFormState = {
   success: boolean;
   message: string;
@@ -10,6 +14,20 @@ export async function sendContact(
   _previousState: ContactFormState,
   formData: FormData,
 ): Promise<ContactFormState> {
+  // ボットとみなした送信は保存しない。
+  // ボットに見破られないよう、通常と同じ「送信しました」を返す。
+  if (isHoneypotFilled(formData)) {
+    console.warn(
+      "ハニーポットに入力があったため、お問い合わせを保存しませんでした",
+    );
+
+    return {
+      success: true,
+      message: SUCCESS_MESSAGE,
+      submittedAt: Date.now(),
+    };
+  }
+
   const name = String(formData.get("name") ?? "").trim();
 
   const email = String(formData.get("email") ?? "").trim();
@@ -43,9 +61,10 @@ export async function sendContact(
   }
 
   const backendUrl = process.env.BACKEND_URL;
+  const internalApiKey = process.env.INTERNAL_API_KEY;
 
-  if (!backendUrl) {
-    console.error("BACKEND_URLが設定されていません。");
+  if (!backendUrl || !internalApiKey) {
+    console.error("BACKEND_URLまたはINTERNAL_API_KEYが設定されていません。");
 
     return {
       success: false,
@@ -61,6 +80,8 @@ export async function sendContact(
         method: "POST",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
+          // Express のお問い合わせAPIは、このキーがないと受け付けない
+          "x-internal-api-key": internalApiKey,
         },
         body: JSON.stringify({
           name,
@@ -70,6 +91,16 @@ export async function sendContact(
         cache: "no-store",
       },
     );
+
+    // サイト全体の回数制限にかかった場合
+    if (response.status === 429) {
+      return {
+        success: false,
+        message:
+          "ただいま送信が混み合っています。時間をおいてもう一度お試しください。",
+        submittedAt: 0,
+      };
+    }
 
     if (!response.ok) {
       console.error(`お問い合わせAPIエラー: ${response.status}`);
@@ -83,7 +114,7 @@ export async function sendContact(
 
     return {
       success: true,
-      message: "お問い合わせを送信しました。ありがとうございます。",
+      message: SUCCESS_MESSAGE,
       submittedAt: Date.now(),
     };
   } catch (error) {
