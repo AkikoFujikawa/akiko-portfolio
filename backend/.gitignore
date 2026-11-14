@@ -6,20 +6,20 @@ frontend/.next/
 frontend/out/
 
 # Express
-backend/dist/
+/dist/
 
 # Prisma自動生成コード
-backend/src/generated/prisma/
+/src/generated/prisma/
 
 # 環境変数
 **/.env
 !.env.example
 
 # Prismaが自動作成したAI設定
-backend/.claude/
-backend/.windsurf/
-backend/.agents/
-backend/skills-lock.json
+/.claude/
+/.windsurf/
+/.agents/
+/skills-lock.json
 
 # ログ
 *.log

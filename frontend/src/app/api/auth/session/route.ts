@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminAuth } from "@/lib/firebase-admin";
+import { getAdminAuth } from "@/lib/firebase-admin";
 // セッションの有効期限を5日間に設定
 const SESSION_EXPIRES_IN = 60 * 60 * 24 * 5 * 1000;
 // POSTメソッドでセッションを作成するエンドポイント
@@ -15,7 +15,8 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-// Firebase Admin SDKを使ってIDトークンを検証し、ユーザー情報を取得
+    // Firebase Admin SDKを使ってIDトークンを検証し、ユーザー情報を取得
+    const adminAuth = getAdminAuth();
     const decodedToken = await adminAuth.verifyIdToken(body.idToken);
     const adminUid = process.env.FIREBASE_ADMIN_UID;
 
@@ -29,12 +30,9 @@ export async function POST(request: Request) {
     }
 
     if (decodedToken.uid !== adminUid) {
-      return NextResponse.json(
-        { error: "Not Found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Not Found" }, { status: 404 });
     }
-// セッションの有効期限を確認し、5分以上経過している場合は再ログインを促す
+    // セッションの有効期限を確認し、5分以上経過している場合は再ログインを促す
     const nowInSeconds = Math.floor(Date.now() / 1000);
 
     if (nowInSeconds - decodedToken.auth_time > 5 * 60) {
@@ -43,14 +41,11 @@ export async function POST(request: Request) {
         { status: 401 },
       );
     }
-// セッションCookieを作成し、HTTPレスポンスにセット
-    const sessionCookie = await adminAuth.createSessionCookie(
-      body.idToken,
-      {
-        expiresIn: SESSION_EXPIRES_IN,
-      },
-    );
-// セッションCookieをHTTPレスポンスにセットして返す
+    // セッションCookieを作成し、HTTPレスポンスにセット
+    const sessionCookie = await adminAuth.createSessionCookie(body.idToken, {
+      expiresIn: SESSION_EXPIRES_IN,
+    });
+    // セッションCookieをHTTPレスポンスにセットして返す
     const response = NextResponse.json({ success: true });
 
     response.cookies.set("session", sessionCookie, {

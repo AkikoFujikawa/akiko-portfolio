@@ -82,6 +82,10 @@ flowchart LR
 * Server Action：管理画面の更新・お問い合わせ送信
 * Route Handler：認証・公開画像・公開データの中継
 
+公開画面のデータと画像は、Next.jsのデータキャッシュに1時間保持します。
+管理画面で更新すると、そのキャッシュをすぐに破棄して最新を表示します（`updateTag`）。
+Expressが停止中でも、キャッシュがあれば公開画面を表示できます。管理画面は常に最新を取得します。
+
 ## データの流れ
 
 ### 公開データの取得
@@ -157,7 +161,14 @@ flowchart LR
 | GET  | `/api/skills`        | スキル一覧取得      |
 | GET  | `/api/profile/image` | プロフィール画像取得   |
 | GET  | `/api/works/:id/image` | 作品画像取得   |
-| POST | `/api/contact`       | お問い合わせ登録     |
+
+### お問い合わせAPI
+
+内部APIキーで保護し、Next.jsサーバー（Server Action）からだけアクセスします。
+
+| メソッド | パス             | 内容       |
+| ---- | -------------- | -------- |
+| POST | `/api/contact` | お問い合わせ登録 |
 
 ### 管理API
 
@@ -184,8 +195,12 @@ flowchart LR
 * 管理者UIDによる認可
 * 未認証・管理者以外の`/admin`アクセスにHTTP 404を返す処理
 * `httpOnly`のセッションCookie
-* 内部APIキーによるExpress管理APIの保護
+* 内部APIキーによるExpress管理API・お問い合わせAPIの保護（`timingSafeEqual`で比較）
 * Next.jsサーバーからExpress管理APIへのアクセス
+* `helmet`によるセキュリティ用HTTPヘッダーの付与
+* お問い合わせのスパム対策
+  * ハニーポット（人には見えない入力欄に入力があれば保存しない）
+  * サイト全体の回数制限（直近10分で10件まで。超えた場合はHTTP 429）
 * フロントエンドとバックエンド双方での入力チェック
 * 画像のMIMEタイプとファイルサイズの確認
 * `.env`と`.env.local`のGit管理対象外設定
@@ -241,9 +256,16 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 NEXT_PUBLIC_FIREBASE_APP_ID
+FIREBASE_CLIENT_EMAIL
+FIREBASE_PRIVATE_KEY
 ```
 
-Firebase Admin SDK用の認証情報も、ローカルのサーバー環境で管理します。
+見本は`frontend/.env.example`にあります。
+
+`FIREBASE_CLIENT_EMAIL`と`FIREBASE_PRIVATE_KEY`は、Firebase Admin SDK用の認証情報です。
+Firebase Consoleの「プロジェクトの設定」→「サービスアカウント」→「新しい秘密鍵を生成」でダウンロードしたJSONの、`client_email`と`private_key`を設定します。
+`private_key`は`"`で囲み、`\n`を含んだ1行のまま貼り付けます。
+ダウンロードしたJSONファイルはリポジトリ内に置かず、値を設定した後は安全な場所で保管するか削除してください。
 
 Firebase ConsoleのAuthenticationで「メール／パスワード」を有効にし、
 管理者ユーザーを1人作成します。そのユーザーのUIDを
@@ -346,6 +368,7 @@ http://localhost:3000/admin/login
 
 ```bash
 cd frontend
+npm run format:check
 npm run test
 npm run lint
 npm run build
@@ -355,10 +378,14 @@ npm run build
 
 ```bash
 cd backend
+npm run format:check
 npm run test
 npm run lint
 npm run build
 ```
+
+`format:check`で整形のずれが見つかった場合は、`npm run format`で自動整形できます。
+Node.jsのバージョンは`.nvmrc`（24）にそろえています。
 
 ### Prisma
 

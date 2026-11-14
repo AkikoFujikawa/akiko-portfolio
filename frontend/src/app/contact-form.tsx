@@ -1,11 +1,8 @@
 "use client";
 
-import {
-  useActionState,
-  useEffect,
-  useRef,
-} from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { sendContact } from "./contact-actions";
+import { HONEYPOT_FIELD_NAME } from "@/lib/contact-honeypot";
 
 const initialState = {
   success: false,
@@ -16,8 +13,10 @@ const initialState = {
 export default function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [state, formAction, isPending] =
-    useActionState(sendContact, initialState);
+  const [state, formAction, isPending] = useActionState(
+    sendContact,
+    initialState,
+  );
 
   useEffect(() => {
     if (state.success) {
@@ -32,9 +31,7 @@ export default function ContactForm() {
       className="mt-8 grid gap-5 text-left"
     >
       <label className="grid gap-2">
-        <span className="font-medium">
-          お名前
-        </span>
+        <span className="font-medium">お名前</span>
 
         <input
           type="text"
@@ -47,9 +44,7 @@ export default function ContactForm() {
       </label>
 
       <label className="grid gap-2">
-        <span className="font-medium">
-          メールアドレス
-        </span>
+        <span className="font-medium">メールアドレス</span>
 
         <input
           type="email"
@@ -62,9 +57,7 @@ export default function ContactForm() {
       </label>
 
       <label className="grid gap-2">
-        <span className="font-medium">
-          お問い合わせ内容
-        </span>
+        <span className="font-medium">お問い合わせ内容</span>
 
         <textarea
           name="message"
@@ -74,6 +67,27 @@ export default function ContactForm() {
           className="rounded-xl border border-white/60 bg-white/65 px-4 py-3 outline-none transition focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
         />
       </label>
+
+      {/*
+        ボット対策の罠（ハニーポット）。画面の外に置いて人には見せない。
+        display: none だとボットに見抜かれやすいため、位置で隠している。
+        キーボード操作や読み上げでも触れないよう、tabIndex と aria-hidden を指定する。
+      */}
+      <div
+        aria-hidden="true"
+        className="absolute -left-[9999px] h-px w-px overflow-hidden"
+      >
+        <label>
+          ウェブサイト（入力しないでください）
+          <input
+            type="text"
+            name={HONEYPOT_FIELD_NAME}
+            tabIndex={-1}
+            autoComplete="off"
+            defaultValue=""
+          />
+        </label>
+      </div>
 
       {state.message && (
         <p

@@ -1,0 +1,15 @@
+# 自動生成・ビルド結果
+node_modules/
+dist/
+src/generated/
+package-lock.json
+
+# 作成済みのマイグレーションの SQL は変更しない
+prisma/migrations/
+
+# 環境変数ファイル・ドキュメント・AI 用の設定
+.env*
+*.md
+.agents/
+.claude/
+.windsurf/

@@ -30,10 +30,7 @@ describe("validateOptionalHttpUrl", () => {
 
   it("不正なプロトコルを拒否する", () => {
     expect(() =>
-      validateOptionalHttpUrl(
-        "javascript:alert(1)",
-        "デモURL",
-      ),
+      validateOptionalHttpUrl("javascript:alert(1)", "デモURL"),
     ).toThrow("デモURLはhttpまたはhttpsのURLを入力してください");
   });
 });

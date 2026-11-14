@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { type FormEvent, useState } from "react";
 import { auth } from "@/lib/firebase";
@@ -26,9 +23,7 @@ function getLoginErrorMessage(error: unknown): string {
     }
   }
 
-  return error instanceof Error
-    ? error.message
-    : "ログインに失敗しました。";
+  return error instanceof Error ? error.message : "ログインに失敗しました。";
 }
 
 export default function AdminLoginPage() {
@@ -37,9 +32,7 @@ export default function AdminLoginPage() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
     setMessage("");
@@ -64,14 +57,10 @@ export default function AdminLoginPage() {
         await signOut(auth);
 
         if (response.status === 404) {
-          throw new Error(
-            "このアカウントは管理者として登録されていません。",
-          );
+          throw new Error("このアカウントは管理者として登録されていません。");
         }
 
-        throw new Error(
-          "ログイン情報を確認できませんでした。",
-        );
+        throw new Error("ログイン情報を確認できませんでした。");
       }
 
       // ログイン成功後、管理者ページにリダイレクト
@@ -89,9 +78,7 @@ export default function AdminLoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-sky-100 via-stone-100 to-amber-50 px-6">
       <section className="w-full max-w-md rounded-3xl bg-white/80 p-8 shadow-lg backdrop-blur">
-        <p className="mb-2 text-sm tracking-widest text-slate-500">
-          ADMIN
-        </p>
+        <p className="mb-2 text-sm tracking-widest text-slate-500">ADMIN</p>
 
         <h1 className="text-2xl font-semibold text-slate-800">
           管理者ログイン
@@ -101,10 +88,7 @@ export default function AdminLoginPage() {
           管理者用のメールアドレスとパスワードを入力してください。
         </p>
 
-        <form
-          onSubmit={handleLogin}
-          className="mt-8 grid gap-5"
-        >
+        <form onSubmit={handleLogin} className="mt-8 grid gap-5">
           <label className="grid gap-2">
             <span className="text-sm font-medium text-slate-700">
               メールアドレス
@@ -126,9 +110,7 @@ export default function AdminLoginPage() {
             <input
               type="password"
               value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
+              onChange={(event) => setPassword(event.target.value)}
               required
               autoComplete="current-password"
               className="rounded-xl border border-slate-300 bg-white px-4 py-3"
@@ -144,9 +126,7 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        {message && (
-          <p className="mt-5 text-sm text-red-700">{message}</p>
-        )}
+        {message && <p className="mt-5 text-sm text-red-700">{message}</p>}
       </section>
     </main>
   );

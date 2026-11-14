@@ -1,23 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
 import { getPortfolioContent } from "@/lib/portfolio-api";
 import ContactForm from "./contact-form";
 
-export const dynamic = "force-dynamic";
-
 export default async function Home() {
-  const { profile, works, skills } =
-    await getPortfolioContent();
+  // ビルド時ではなく、アクセスがあったときに画面を組み立てる
+  // （ビルド時に Express を呼ばないため）。
+  // データは Next.js のサーバー側にとっておいたものを使う（lib/portfolio-cache.ts）。
+  await connection();
+
+  const { profile, works, skills } = await getPortfolioContent();
 
   return (
     <main className="watercolor-bg min-h-screen text-[#4a4a4a]">
       {/* ヘッダー */}
       <header className="sticky top-0 z-20 border-b border-white/30 bg-white/45 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
-          <a
-            href="#"
-            className="text-xl font-semibold tracking-wide"
-          >
+          <a href="#" className="text-xl font-semibold tracking-wide">
             AKIKO PORTFOLIO
           </a>
 
@@ -26,51 +26,34 @@ export default async function Home() {
               href="#profile"
               className="text-center transition hover:opacity-60"
             >
-              <span className="block text-sm font-semibold">
-                私について
-              </span>
-              <span className="block text-xs">
-                Profile
-              </span>
+              <span className="block text-sm font-semibold">私について</span>
+              <span className="block text-xs">Profile</span>
             </a>
 
             <a
               href="#works"
               className="text-center transition hover:opacity-60"
             >
-              <span className="block text-sm font-semibold">
-                制作実績
-              </span>
-              <span className="block text-xs">
-                Works
-              </span>
+              <span className="block text-sm font-semibold">制作実績</span>
+              <span className="block text-xs">Works</span>
             </a>
 
             <a
               href="#skills"
               className="text-center transition hover:opacity-60"
             >
-              <span className="block text-sm font-semibold">
-                スキル
-              </span>
-              <span className="block text-xs">
-                Skills
-              </span>
+              <span className="block text-sm font-semibold">スキル</span>
+              <span className="block text-xs">Skills</span>
             </a>
 
             <a
               href="#contact"
               className="text-center transition hover:opacity-60"
             >
-              <span className="block text-sm font-semibold">
-                お問い合わせ
-              </span>
-              <span className="block text-xs">
-                Contact
-              </span>
+              <span className="block text-sm font-semibold">お問い合わせ</span>
+              <span className="block text-xs">Contact</span>
             </a>
           </nav>
-
         </div>
       </header>
 
@@ -96,8 +79,7 @@ export default async function Home() {
           </h1>
 
           <h2 className="mb-10 whitespace-pre-line text-3xl font-bold leading-relaxed md:text-4xl">
-            {profile?.headline ??
-              "人に寄り添う経験を\nデジタルの力へ"}
+            {profile?.headline ?? "人に寄り添う経験を\nデジタルの力へ"}
           </h2>
 
           <div className="flex flex-wrap gap-4">
@@ -123,9 +105,7 @@ export default async function Home() {
             {profile?.imageMimeType ? (
               <Image
                 src="/api/profile-image"
-                alt={`${
-                  profile.nameJa ?? profile.name
-                }のプロフィール画像`}
+                alt={`${profile.nameJa ?? profile.name}のプロフィール画像`}
                 fill
                 sizes="(min-width: 768px) 370px, 310px"
                 priority
@@ -134,12 +114,8 @@ export default async function Home() {
               />
             ) : (
               <div className="text-center">
-                <p className="text-6xl font-semibold tracking-wider">
-                  AF
-                </p>
-                <p className="mt-4 text-sm">
-                  プロフィール画像
-                </p>
+                <p className="text-6xl font-semibold tracking-wider">AF</p>
+                <p className="mt-4 text-sm">プロフィール画像</p>
               </div>
             )}
           </div>
@@ -152,18 +128,13 @@ export default async function Home() {
         className="mx-auto max-w-6xl scroll-mt-20 px-6 py-20"
       >
         <div className="mb-12 text-center">
-          <p className="text-sm font-semibold tracking-[0.25em]">
-            PROFILE
-          </p>
-          <h2 className="mt-3 text-3xl font-bold">
-            プロフィール
-          </h2>
+          <p className="text-sm font-semibold tracking-[0.25em]">PROFILE</p>
+          <h2 className="mt-3 text-3xl font-bold">プロフィール</h2>
         </div>
 
         <div className="mx-auto max-w-3xl rounded-2xl bg-white/40 p-8 shadow-sm">
           <p className="whitespace-pre-line leading-8">
-            {profile?.bio ??
-              "プロフィールを準備しています。"}
+            {profile?.bio ?? "プロフィールを準備しています。"}
           </p>
 
           {profile?.location && (
@@ -176,30 +147,22 @@ export default async function Home() {
         {/* 過去・現在・未来 */}
         <div className="mt-8 grid gap-6 md:grid-cols-3">
           <article className="rounded-2xl bg-white/40 p-7 shadow-sm">
-            <h3 className="text-center text-xl font-semibold">
-              過去
-            </h3>
+            <h3 className="text-center text-xl font-semibold">過去</h3>
             <p className="mt-4 leading-7">
-              旅行、行政、農業、相談支援など、
-              さまざまな仕事を経験しました。
+              旅行、行政、農業、相談支援など、 さまざまな仕事を経験しました。
             </p>
           </article>
 
           <article className="rounded-2xl bg-white/40 p-7 shadow-sm">
-            <h3 className="text-center text-xl font-semibold">
-              現在
-            </h3>
+            <h3 className="text-center text-xl font-semibold">現在</h3>
             <p className="mt-4 leading-7">
               子育て世代を支える仕事に携わりながら、
-              より良い仕組みづくりを目指して
-              Web開発を学んでいます。
+              より良い仕組みづくりを目指して Web開発を学んでいます。
             </p>
           </article>
 
           <article className="rounded-2xl bg-white/40 p-7 shadow-sm">
-            <h3 className="text-center text-xl font-semibold">
-              未来
-            </h3>
+            <h3 className="text-center text-xl font-semibold">未来</h3>
             <p className="mt-4 leading-7">
               人を支える経験とITを組み合わせ、
               業務改善に関わることを目指しています。
@@ -209,17 +172,10 @@ export default async function Home() {
       </section>
 
       {/* 実績 */}
-      <section
-        id="works"
-        className="mx-auto max-w-6xl scroll-mt-20 px-6 py-20"
-      >
+      <section id="works" className="mx-auto max-w-6xl scroll-mt-20 px-6 py-20">
         <div className="mb-12 text-center">
-          <p className="text-sm font-semibold tracking-[0.25em]">
-            WORKS
-          </p>
-          <h2 className="mt-3 text-3xl font-bold">
-            実績
-          </h2>
+          <p className="text-sm font-semibold tracking-[0.25em]">WORKS</p>
+          <h2 className="mt-3 text-3xl font-bold">実績</h2>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
@@ -239,31 +195,25 @@ export default async function Home() {
                     className="object-cover"
                   />
                 ) : (
-                  <span className="text-sm">
-                    作品画像
-                  </span>
+                  <span className="text-sm">作品画像</span>
                 )}
               </div>
 
-              <h3 className="mb-3 text-2xl font-semibold">
-                {work.title}
-              </h3>
+              <h3 className="mb-3 text-2xl font-semibold">{work.title}</h3>
 
               <p className="mb-5 whitespace-pre-line leading-7">
                 {work.description}
               </p>
 
               <div className="flex flex-wrap gap-2">
-                {work.technologies.map(
-                  (technology) => (
-                    <span
-                      key={technology}
-                      className="rounded-full bg-white/50 px-3 py-1 text-sm"
-                    >
-                      {technology}
-                    </span>
-                  ),
-                )}
+                {work.technologies.map((technology) => (
+                  <span
+                    key={technology}
+                    className="rounded-full bg-white/50 px-3 py-1 text-sm"
+                  >
+                    {technology}
+                  </span>
+                ))}
               </div>
 
               {(work.githubUrl || work.demoUrl) && (
@@ -310,12 +260,8 @@ export default async function Home() {
         className="mx-auto max-w-4xl scroll-mt-20 px-6 py-20"
       >
         <div className="mb-12 text-center">
-          <p className="text-sm font-semibold tracking-[0.25em]">
-            SKILLS
-          </p>
-          <h2 className="mt-3 text-3xl font-bold">
-            スキル
-          </h2>
+          <p className="text-sm font-semibold tracking-[0.25em]">SKILLS</p>
+          <h2 className="mt-3 text-3xl font-bold">スキル</h2>
         </div>
 
         <div className="flex flex-wrap justify-center gap-3">
@@ -336,13 +282,9 @@ export default async function Home() {
         className="mx-auto max-w-3xl scroll-mt-20 px-6 py-20"
       >
         <div className="rounded-3xl bg-white/40 p-10 text-center shadow-sm">
-          <p className="text-sm font-semibold tracking-[0.25em]">
-            CONTACT
-          </p>
+          <p className="text-sm font-semibold tracking-[0.25em]">CONTACT</p>
 
-          <h2 className="mt-3 text-3xl font-bold">
-            お問い合わせ
-          </h2>
+          <h2 className="mt-3 text-3xl font-bold">お問い合わせ</h2>
 
           <p className="mt-5 leading-7">
             どんなことでもお気軽にお問い合わせください。

@@ -40,12 +40,7 @@ a {
       rgba(245, 233, 225, 0.3),
       transparent 36%
     ),
-    linear-gradient(
-      to bottom,
-      #8ab8c1 0%,
-      #afc1c4 42%,
-      #c9b0a2 100%
-    );
+    linear-gradient(to bottom, #8ab8c1 0%, #afc1c4 42%, #c9b0a2 100%);
   background-attachment: fixed;
 }
 

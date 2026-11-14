@@ -5,13 +5,10 @@ export async function adminApiFetch(
   options: RequestInit,
 ): Promise<Response> {
   const backendUrl = process.env.BACKEND_URL;
-  const internalApiKey =
-    process.env.INTERNAL_API_KEY;
+  const internalApiKey = process.env.INTERNAL_API_KEY;
 
   if (!backendUrl || !internalApiKey) {
-    throw new Error(
-      "管理APIに必要な環境変数が設定されていません",
-    );
+    throw new Error("管理APIに必要な環境変数が設定されていません");
   }
 
   const headers = new Headers(options.headers);
@@ -19,25 +16,16 @@ export async function adminApiFetch(
   // 画像には画像用のContent-Typeを使用します。
   // 指定がない通常の処理ではJSONを使用します。
   if (!headers.has("Content-Type")) {
-    headers.set(
-      "Content-Type",
-      "application/json",
-    );
+    headers.set("Content-Type", "application/json");
   }
 
-  headers.set(
-    "x-internal-api-key",
-    internalApiKey,
-  );
+  headers.set("x-internal-api-key", internalApiKey);
 
-  const response = await fetch(
-    `${backendUrl.replace(/\/$/, "")}${path}`,
-    {
-      ...options,
-      headers,
-      cache: "no-store",
-    },
-  );
+  const response = await fetch(`${backendUrl.replace(/\/$/, "")}${path}`, {
+    ...options,
+    headers,
+    cache: "no-store",
+  });
 
   if (!response.ok) {
     let errorDetail = "";
