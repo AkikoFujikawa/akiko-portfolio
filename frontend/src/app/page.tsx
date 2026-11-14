@@ -1,11 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
 import { getPortfolioContent } from "@/lib/portfolio-api";
 import ContactForm from "./contact-form";
 
-export const dynamic = "force-dynamic";
-
 export default async function Home() {
+  // ビルド時ではなく、アクセスがあったときに画面を組み立てる
+  // （ビルド時に Express を呼ばないため）。
+  // データは Next.js のサーバー側にとっておいたものを使う（lib/portfolio-cache.ts）。
+  await connection();
+
   const { profile, works, skills } = await getPortfolioContent();
 
   return (

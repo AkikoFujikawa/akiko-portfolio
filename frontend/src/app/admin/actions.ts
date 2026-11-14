@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { adminApiFetch } from "@/lib/admin-api";
+import { PORTFOLIO_CACHE_TAG } from "@/lib/portfolio-cache";
 import {
   assertMaximumLength,
   parseDisplayOrder,
@@ -18,10 +19,12 @@ function text(formData: FormData, name: string): string {
   return String(formData.get(name) ?? "").trim();
 }
 
+// 管理画面で更新したあと、公開画面のキャッシュ（データ・画像）をすぐに捨てる。
+// updateTag は、次のアクセスで古いデータを見せずに最新を取りに行く。
 function revalidatePortfolio(): void {
+  updateTag(PORTFOLIO_CACHE_TAG);
   revalidatePath("/admin");
   revalidatePath("/");
-  revalidatePath("/api/portfolio");
 }
 
 function validateImage(value: FormDataEntryValue | null, label: string): File {
@@ -158,7 +161,6 @@ export async function deleteWork(formData: FormData): Promise<void> {
   });
 
   revalidatePortfolio();
-  revalidatePath(`/api/work-image/${id}`);
 }
 
 export async function createSkill(formData: FormData): Promise<void> {
@@ -212,7 +214,6 @@ export async function updateProfileImage(formData: FormData): Promise<void> {
   });
 
   revalidatePortfolio();
-  revalidatePath("/api/profile-image");
 }
 
 export async function updateWorkImage(formData: FormData): Promise<void> {
@@ -230,5 +231,4 @@ export async function updateWorkImage(formData: FormData): Promise<void> {
   });
 
   revalidatePortfolio();
-  revalidatePath(`/api/work-image/${id}`);
 }

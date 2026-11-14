@@ -20,7 +20,8 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   await requireAdmin();
 
-  const { profile, works, skills } = await getPortfolioContent();
+  // 管理画面は、キャッシュを使わず毎回最新を表示する
+  const { profile, works, skills } = await getPortfolioContent("fresh");
 
   const inputClassName =
     "rounded-xl border border-slate-300 bg-white px-4 py-3";

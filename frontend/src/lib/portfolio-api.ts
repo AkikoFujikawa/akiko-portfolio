@@ -1,4 +1,9 @@
 //Next.jsサーバーからExpressへ問い合わせる共通窓口
+import {
+  portfolioFetchOptions,
+  type PortfolioFetchMode,
+} from "@/lib/portfolio-cache";
+
 export type Profile = {
   id: number;
   name: string;
@@ -38,10 +43,14 @@ function getBackendUrl(): string {
   return backendUrl.replace(/\/$/, "");
 }
 //Express APIを呼び出す共通関数
-async function fetchBackend<T>(path: string): Promise<T> {
-  const response = await fetch(`${getBackendUrl()}${path}`, {
-    cache: "no-store",
-  });
+async function fetchBackend<T>(
+  path: string,
+  mode: PortfolioFetchMode,
+): Promise<T> {
+  const response = await fetch(
+    `${getBackendUrl()}${path}`,
+    portfolioFetchOptions(mode),
+  );
 
   if (!response.ok) {
     throw new Error(`Express APIの取得に失敗しました: ${response.status}`);
@@ -50,11 +59,12 @@ async function fetchBackend<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 //ポートフォリオのコンテンツを取得する関数
-export async function getPortfolioContent() {
+// 公開画面は "cached"（初期値）、管理画面は "fresh" で呼ぶ
+export async function getPortfolioContent(mode: PortfolioFetchMode = "cached") {
   const [profile, works, skills] = await Promise.all([
-    fetchBackend<Profile | null>("/api/profile"),
-    fetchBackend<Work[]>("/api/works"),
-    fetchBackend<Skill[]>("/api/skills"),
+    fetchBackend<Profile | null>("/api/profile", mode),
+    fetchBackend<Work[]>("/api/works", mode),
+    fetchBackend<Skill[]>("/api/skills", mode),
   ]);
 
   return {
