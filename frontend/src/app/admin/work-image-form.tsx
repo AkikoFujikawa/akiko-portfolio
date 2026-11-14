@@ -19,9 +19,7 @@ export default function WorkImageForm({
 }: WorkImageFormProps) {
   const [imageError, setImageError] = useState("");
 
-  function handleImageChange(
-    event: ChangeEvent<HTMLInputElement>,
-  ) {
+  function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     const image = event.target.files?.[0];
 
     if (!image) {
@@ -30,9 +28,7 @@ export default function WorkImageForm({
     }
 
     if (image.size > maximumImageSize) {
-      setImageError(
-        "画像サイズは1MB以下にしてください",
-      );
+      setImageError("画像サイズは1MB以下にしてください");
       event.target.value = "";
       return;
     }
@@ -63,16 +59,11 @@ export default function WorkImageForm({
         </p>
       )}
 
-      <form
-        action={updateWorkImage}
-        className="mt-5 grid gap-4"
-      >
+      <form action={updateWorkImage} className="mt-5 grid gap-4">
         <input type="hidden" name="id" value={workId} />
 
         <label className="grid gap-2">
-          <span className="font-medium text-slate-700">
-            画像ファイル
-          </span>
+          <span className="font-medium text-slate-700">画像ファイル</span>
 
           <input
             type="file"
@@ -88,10 +79,7 @@ export default function WorkImageForm({
           </span>
 
           {imageError && (
-            <p
-              role="alert"
-              className="text-sm font-medium text-red-600"
-            >
+            <p role="alert" className="text-sm font-medium text-red-600">
               {imageError}
             </p>
           )}

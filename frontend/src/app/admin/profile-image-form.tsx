@@ -19,9 +19,7 @@ export default function ProfileImageForm({
 }: ProfileImageFormProps) {
   const [imageError, setImageError] = useState("");
   //画像が選択されたときに呼び出される関数
-  function handleImageChange(
-    event: ChangeEvent<HTMLInputElement>,
-  ) {
+  function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     const image = event.target.files?.[0];
 
     //画像が選択されていない場合、エラーメッセージをクリアする
@@ -31,9 +29,7 @@ export default function ProfileImageForm({
     }
     //画像サイズが大きすぎる場合、エラーメッセージを表示する
     if (image.size > maximumImageSize) {
-      setImageError(
-        "画像サイズは1MB以下にしてください",
-      );
+      setImageError("画像サイズは1MB以下にしてください");
       //画像サイズが大きすぎる場合、選択を解除する
       event.target.value = "";
       return;
@@ -65,20 +61,11 @@ export default function ProfileImageForm({
         </p>
       )}
 
-      <form
-        action={updateProfileImage}
-        className="mt-6 grid gap-5"
-      >
-        <input
-          type="hidden"
-          name="id"
-          value={profileId}
-        />
+      <form action={updateProfileImage} className="mt-6 grid gap-5">
+        <input type="hidden" name="id" value={profileId} />
 
         <label className="grid gap-2">
-          <span className="font-medium text-slate-700">
-            画像ファイル
-          </span>
+          <span className="font-medium text-slate-700">画像ファイル</span>
 
           <input
             type="file"
@@ -94,10 +81,7 @@ export default function ProfileImageForm({
           </span>
 
           {imageError && (
-            <p
-              role="alert"
-              className="text-sm font-medium text-red-600"
-            >
+            <p role="alert" className="text-sm font-medium text-red-600">
               {imageError}
             </p>
           )}

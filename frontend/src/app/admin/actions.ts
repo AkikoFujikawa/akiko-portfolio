@@ -11,11 +11,7 @@ import {
 } from "@/lib/admin-form-validation";
 import { requireAdmin } from "@/lib/require-admin";
 
-const allowedImageTypes = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-];
+const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
 const maximumImageSize = 1024 * 1024;
 
 function text(formData: FormData, name: string): string {
@@ -28,10 +24,7 @@ function revalidatePortfolio(): void {
   revalidatePath("/api/portfolio");
 }
 
-function validateImage(
-  value: FormDataEntryValue | null,
-  label: string,
-): File {
+function validateImage(value: FormDataEntryValue | null, label: string): File {
   if (!(value instanceof File) || value.size === 0) {
     throw new Error(`${label}を選択してください`);
   }
@@ -50,20 +43,13 @@ function validateImage(
 function parseWorkForm(formData: FormData) {
   const title = text(formData, "title");
   const description = text(formData, "description");
-  const technologies = parseTechnologies(
-    text(formData, "technologies"),
-  );
+  const technologies = parseTechnologies(text(formData, "technologies"));
   const githubUrl = validateOptionalHttpUrl(
     text(formData, "githubUrl"),
     "GitHub URL",
   );
-  const demoUrl = validateOptionalHttpUrl(
-    text(formData, "demoUrl"),
-    "デモURL",
-  );
-  const displayOrder = parseDisplayOrder(
-    formData.get("displayOrder"),
-  );
+  const demoUrl = validateOptionalHttpUrl(text(formData, "demoUrl"), "デモURL");
+  const displayOrder = parseDisplayOrder(formData.get("displayOrder"));
 
   if (!title || !description) {
     throw new Error("タイトル、説明、使用技術は必須です");
@@ -86,9 +72,7 @@ function parseSkillForm(formData: FormData) {
   const name = text(formData, "name");
   const description = text(formData, "description");
   const category = text(formData, "category");
-  const displayOrder = parseDisplayOrder(
-    formData.get("displayOrder"),
-  );
+  const displayOrder = parseDisplayOrder(formData.get("displayOrder"));
 
   if (!name) {
     throw new Error("スキル名は必須です");
@@ -106,15 +90,10 @@ function parseSkillForm(formData: FormData) {
   };
 }
 
-export async function updateProfile(
-  formData: FormData,
-): Promise<void> {
+export async function updateProfile(formData: FormData): Promise<void> {
   await requireAdmin();
 
-  const id = parsePositiveId(
-    formData.get("id"),
-    "プロフィール",
-  );
+  const id = parsePositiveId(formData.get("id"), "プロフィール");
   const name = text(formData, "name");
   const nameJa = text(formData, "nameJa");
   const headline = text(formData, "headline");
@@ -145,9 +124,7 @@ export async function updateProfile(
   revalidatePortfolio();
 }
 
-export async function createWork(
-  formData: FormData,
-): Promise<void> {
+export async function createWork(formData: FormData): Promise<void> {
   await requireAdmin();
 
   await adminApiFetch("/api/admin/works", {
@@ -158,9 +135,7 @@ export async function createWork(
   revalidatePortfolio();
 }
 
-export async function updateWork(
-  formData: FormData,
-): Promise<void> {
+export async function updateWork(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = parsePositiveId(formData.get("id"), "実績");
@@ -173,9 +148,7 @@ export async function updateWork(
   revalidatePortfolio();
 }
 
-export async function deleteWork(
-  formData: FormData,
-): Promise<void> {
+export async function deleteWork(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = parsePositiveId(formData.get("id"), "実績");
@@ -188,9 +161,7 @@ export async function deleteWork(
   revalidatePath(`/api/work-image/${id}`);
 }
 
-export async function createSkill(
-  formData: FormData,
-): Promise<void> {
+export async function createSkill(formData: FormData): Promise<void> {
   await requireAdmin();
 
   await adminApiFetch("/api/admin/skills", {
@@ -201,9 +172,7 @@ export async function createSkill(
   revalidatePortfolio();
 }
 
-export async function updateSkill(
-  formData: FormData,
-): Promise<void> {
+export async function updateSkill(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = parsePositiveId(formData.get("id"), "スキル");
@@ -216,9 +185,7 @@ export async function updateSkill(
   revalidatePortfolio();
 }
 
-export async function deleteSkill(
-  formData: FormData,
-): Promise<void> {
+export async function deleteSkill(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = parsePositiveId(formData.get("id"), "スキル");
@@ -230,19 +197,11 @@ export async function deleteSkill(
   revalidatePortfolio();
 }
 
-export async function updateProfileImage(
-  formData: FormData,
-): Promise<void> {
+export async function updateProfileImage(formData: FormData): Promise<void> {
   await requireAdmin();
 
-  const id = parsePositiveId(
-    formData.get("id"),
-    "プロフィール",
-  );
-  const image = validateImage(
-    formData.get("image"),
-    "プロフィール画像",
-  );
+  const id = parsePositiveId(formData.get("id"), "プロフィール");
+  const image = validateImage(formData.get("image"), "プロフィール画像");
 
   await adminApiFetch(`/api/admin/profile/${id}/image`, {
     method: "PUT",
@@ -256,16 +215,11 @@ export async function updateProfileImage(
   revalidatePath("/api/profile-image");
 }
 
-export async function updateWorkImage(
-  formData: FormData,
-): Promise<void> {
+export async function updateWorkImage(formData: FormData): Promise<void> {
   await requireAdmin();
 
   const id = parsePositiveId(formData.get("id"), "実績");
-  const image = validateImage(
-    formData.get("image"),
-    "作品画像",
-  );
+  const image = validateImage(formData.get("image"), "作品画像");
 
   await adminApiFetch(`/api/admin/works/${id}/image`, {
     method: "PUT",

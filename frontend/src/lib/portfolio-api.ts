@@ -44,9 +44,7 @@ async function fetchBackend<T>(path: string): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Express APIの取得に失敗しました: ${response.status}`,
-    );
+    throw new Error(`Express APIの取得に失敗しました: ${response.status}`);
   }
 
   return (await response.json()) as T;

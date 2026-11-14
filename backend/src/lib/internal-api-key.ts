@@ -15,9 +15,7 @@ export function isValidInternalApiKey(
   // timingSafeEqual は同じ長さの値しか比べられないため、
   // 両方をハッシュ（いつも32バイト）にそろえてから比べる。
   const receivedHash = createHash("sha256").update(receivedKey).digest();
-  const configuredHash = createHash("sha256")
-    .update(configuredKey)
-    .digest();
+  const configuredHash = createHash("sha256").update(configuredKey).digest();
 
   return timingSafeEqual(receivedHash, configuredHash);
 }

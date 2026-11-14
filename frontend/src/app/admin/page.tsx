@@ -20,8 +20,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   await requireAdmin();
 
-  const { profile, works, skills } =
-    await getPortfolioContent();
+  const { profile, works, skills } = await getPortfolioContent();
 
   const inputClassName =
     "rounded-xl border border-slate-300 bg-white px-4 py-3";
@@ -50,25 +49,19 @@ export default async function AdminPage() {
               className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
             >
               公開サイトを見る
-              <span className="ml-1 text-xs">
-
-              </span>
+              <span className="ml-1 text-xs"></span>
             </Link>
 
             <LogoutButton />
           </div>
         </div>
 
-        <p className="mt-6 text-slate-600">
-          管理者としてログインしています。
-        </p>
+        <p className="mt-6 text-slate-600">管理者としてログインしています。</p>
 
         {profile && (
           <ProfileImageForm
             profileId={profile.id}
-            hasImage={Boolean(
-              profile.imageMimeType,
-            )}
+            hasImage={Boolean(profile.imageMimeType)}
           />
         )}
 
@@ -79,36 +72,23 @@ export default async function AdminPage() {
           </h2>
 
           {profile ? (
-            <form
-              action={updateProfile}
-              className="mt-6 grid gap-5"
-            >
-              <input
-                type="hidden"
-                name="id"
-                value={profile.id}
-              />
+            <form action={updateProfile} className="mt-6 grid gap-5">
+              <input type="hidden" name="id" value={profile.id} />
 
               <label className="grid gap-2">
-                <span className="font-medium text-slate-700">
-                  日本語名
-                </span>
+                <span className="font-medium text-slate-700">日本語名</span>
                 <input
                   type="text"
                   name="nameJa"
                   maxLength={100}
-                  defaultValue={
-                    profile.nameJa ?? ""
-                  }
+                  defaultValue={profile.nameJa ?? ""}
                   className={inputClassName}
                   placeholder="例：藤川 明子"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="font-medium text-slate-700">
-                  英語名
-                </span>
+                <span className="font-medium text-slate-700">英語名</span>
                 <input
                   type="text"
                   name="name"
@@ -121,9 +101,7 @@ export default async function AdminPage() {
               </label>
 
               <label className="grid gap-2">
-                <span className="font-medium text-slate-700">
-                  見出し
-                </span>
+                <span className="font-medium text-slate-700">見出し</span>
                 <textarea
                   name="headline"
                   required
@@ -131,16 +109,12 @@ export default async function AdminPage() {
                   rows={2}
                   defaultValue={profile.headline}
                   className={inputClassName}
-                  placeholder={
-                    "例：人に寄り添う経験を\nデジタルの力へ"
-                  }
+                  placeholder={"例：人に寄り添う経験を\nデジタルの力へ"}
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="font-medium text-slate-700">
-                  自己紹介
-                </span>
+                <span className="font-medium text-slate-700">自己紹介</span>
                 <textarea
                   name="bio"
                   required
@@ -153,16 +127,12 @@ export default async function AdminPage() {
               </label>
 
               <label className="grid gap-2">
-                <span className="font-medium text-slate-700">
-                  地域
-                </span>
+                <span className="font-medium text-slate-700">地域</span>
                 <input
                   type="text"
                   name="location"
                   maxLength={100}
-                  defaultValue={
-                    profile.location ?? ""
-                  }
+                  defaultValue={profile.location ?? ""}
                   className={inputClassName}
                   placeholder="例：Ibaraki, Japan"
                 />
@@ -184,9 +154,7 @@ export default async function AdminPage() {
 
         {/* 実績登録 */}
         <section className="mt-10 border-t border-slate-200 pt-8">
-          <h2 className="text-2xl font-semibold text-slate-800">
-            実績を追加
-          </h2>
+          <h2 className="text-2xl font-semibold text-slate-800">実績を追加</h2>
 
           <p className="mt-3 text-slate-600">
             登録した実績は公開ページへ自動的に追加されます。
@@ -197,9 +165,7 @@ export default async function AdminPage() {
             className="mt-6 grid gap-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-6"
           >
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                タイトル
-              </span>
+              <span className="font-medium text-slate-700">タイトル</span>
               <input
                 type="text"
                 name="title"
@@ -211,9 +177,7 @@ export default async function AdminPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                説明
-              </span>
+              <span className="font-medium text-slate-700">説明</span>
               <textarea
                 name="description"
                 required
@@ -225,9 +189,7 @@ export default async function AdminPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                使用技術
-              </span>
+              <span className="font-medium text-slate-700">使用技術</span>
               <input
                 type="text"
                 name="technologies"
@@ -242,9 +204,7 @@ export default async function AdminPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                GitHub URL
-              </span>
+              <span className="font-medium text-slate-700">GitHub URL</span>
               <input
                 type="url"
                 name="githubUrl"
@@ -255,9 +215,7 @@ export default async function AdminPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                デモURL
-              </span>
+              <span className="font-medium text-slate-700">デモURL</span>
               <input
                 type="url"
                 name="demoUrl"
@@ -268,9 +226,7 @@ export default async function AdminPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                表示順
-              </span>
+              <span className="font-medium text-slate-700">表示順</span>
               <input
                 type="number"
                 name="displayOrder"
@@ -292,9 +248,7 @@ export default async function AdminPage() {
 
         {/* 実績編集 */}
         <section className="mt-10 border-t border-slate-200 pt-8">
-          <h2 className="text-2xl font-semibold text-slate-800">
-            実績を編集
-          </h2>
+          <h2 className="text-2xl font-semibold text-slate-800">実績を編集</h2>
 
           {works.length > 0 ? (
             <div className="mt-6 grid gap-8">
@@ -306,118 +260,95 @@ export default async function AdminPage() {
                   <WorkImageForm
                     workId={work.id}
                     workTitle={work.title}
-                    hasImage={Boolean(
-                      work.imageMimeType,
-                    )}
+                    hasImage={Boolean(work.imageMimeType)}
                   />
 
-                  <form
-                    action={updateWork}
-                    className="grid gap-5"
-                  >
-                    <input
-                      type="hidden"
-                      name="id"
-                      value={work.id}
-                    />
+                  <form action={updateWork} className="grid gap-5">
+                    <input type="hidden" name="id" value={work.id} />
 
-                  <label className="grid gap-2">
-                    <span className="font-medium text-slate-700">
-                      タイトル
-                    </span>
-                    <input
-                      type="text"
-                      name="title"
-                      required
-                      maxLength={100}
-                      defaultValue={work.title}
-                      className={inputClassName}
-                    />
-                  </label>
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">
+                        タイトル
+                      </span>
+                      <input
+                        type="text"
+                        name="title"
+                        required
+                        maxLength={100}
+                        defaultValue={work.title}
+                        className={inputClassName}
+                      />
+                    </label>
 
-                  <label className="grid gap-2">
-                    <span className="font-medium text-slate-700">
-                      説明
-                    </span>
-                    <textarea
-                      name="description"
-                      required
-                      maxLength={2000}
-                      rows={4}
-                      defaultValue={
-                        work.description
-                      }
-                      className={inputClassName}
-                    />
-                  </label>
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">説明</span>
+                      <textarea
+                        name="description"
+                        required
+                        maxLength={2000}
+                        rows={4}
+                        defaultValue={work.description}
+                        className={inputClassName}
+                      />
+                    </label>
 
-                  <label className="grid gap-2">
-                    <span className="font-medium text-slate-700">
-                      使用技術
-                    </span>
-                    <input
-                      type="text"
-                      name="technologies"
-                      required
-                      maxLength={1000}
-                      defaultValue={work.technologies.join(
-                        ", ",
-                      )}
-                      className={inputClassName}
-                      placeholder="例：Next.js, TypeScript, Express"
-                    />
-                    <span className="text-sm text-slate-500">
-                      複数の技術はカンマで区切ります。
-                    </span>
-                  </label>
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">
+                        使用技術
+                      </span>
+                      <input
+                        type="text"
+                        name="technologies"
+                        required
+                        maxLength={1000}
+                        defaultValue={work.technologies.join(", ")}
+                        className={inputClassName}
+                        placeholder="例：Next.js, TypeScript, Express"
+                      />
+                      <span className="text-sm text-slate-500">
+                        複数の技術はカンマで区切ります。
+                      </span>
+                    </label>
 
-                  <label className="grid gap-2">
-                    <span className="font-medium text-slate-700">
-                      GitHub URL
-                    </span>
-                    <input
-                      type="url"
-                      name="githubUrl"
-                      maxLength={2048}
-                      defaultValue={
-                        work.githubUrl ?? ""
-                      }
-                      className={inputClassName}
-                      placeholder="https://github.com/..."
-                    />
-                  </label>
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">
+                        GitHub URL
+                      </span>
+                      <input
+                        type="url"
+                        name="githubUrl"
+                        maxLength={2048}
+                        defaultValue={work.githubUrl ?? ""}
+                        className={inputClassName}
+                        placeholder="https://github.com/..."
+                      />
+                    </label>
 
-                  <label className="grid gap-2">
-                    <span className="font-medium text-slate-700">
-                      デモURL
-                    </span>
-                    <input
-                      type="url"
-                      name="demoUrl"
-                      maxLength={2048}
-                      defaultValue={
-                        work.demoUrl ?? ""
-                      }
-                      className={inputClassName}
-                      placeholder="https://..."
-                    />
-                  </label>
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">
+                        デモURL
+                      </span>
+                      <input
+                        type="url"
+                        name="demoUrl"
+                        maxLength={2048}
+                        defaultValue={work.demoUrl ?? ""}
+                        className={inputClassName}
+                        placeholder="https://..."
+                      />
+                    </label>
 
-                  <label className="grid gap-2">
-                    <span className="font-medium text-slate-700">
-                      表示順
-                    </span>
-                    <input
-                      type="number"
-                      name="displayOrder"
-                      min="0"
-                      max="9999"
-                      defaultValue={
-                        work.displayOrder
-                      }
-                      className={inputClassName}
-                    />
-                  </label>
+                    <label className="grid gap-2">
+                      <span className="font-medium text-slate-700">表示順</span>
+                      <input
+                        type="number"
+                        name="displayOrder"
+                        min="0"
+                        max="9999"
+                        defaultValue={work.displayOrder}
+                        className={inputClassName}
+                      />
+                    </label>
 
                     <button
                       type="submit"
@@ -428,11 +359,7 @@ export default async function AdminPage() {
                   </form>
 
                   <form action={deleteWork}>
-                    <input
-                      type="hidden"
-                      name="id"
-                      value={work.id}
-                    />
+                    <input type="hidden" name="id" value={work.id} />
                     <DeleteButton
                       confirmationMessage={`「${work.title}」を削除しますか？`}
                     >
@@ -443,9 +370,7 @@ export default async function AdminPage() {
               ))}
             </div>
           ) : (
-            <p className="mt-6 text-slate-600">
-              登録済みの実績がありません。
-            </p>
+            <p className="mt-6 text-slate-600">登録済みの実績がありません。</p>
           )}
         </section>
 
@@ -455,14 +380,9 @@ export default async function AdminPage() {
             スキルを登録
           </h2>
 
-          <form
-            action={createSkill}
-            className="mt-6 grid gap-5"
-          >
+          <form action={createSkill} className="mt-6 grid gap-5">
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                スキル名
-              </span>
+              <span className="font-medium text-slate-700">スキル名</span>
               <input
                 type="text"
                 name="name"
@@ -474,9 +394,7 @@ export default async function AdminPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                説明
-              </span>
+              <span className="font-medium text-slate-700">説明</span>
               <textarea
                 name="description"
                 maxLength={500}
@@ -487,9 +405,7 @@ export default async function AdminPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                カテゴリー
-              </span>
+              <span className="font-medium text-slate-700">カテゴリー</span>
               <input
                 type="text"
                 name="category"
@@ -500,9 +416,7 @@ export default async function AdminPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="font-medium text-slate-700">
-                表示順
-              </span>
+              <span className="font-medium text-slate-700">表示順</span>
               <input
                 type="number"
                 name="displayOrder"
@@ -535,15 +449,8 @@ export default async function AdminPage() {
                   key={skill.id}
                   className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-6"
                 >
-                  <form
-                    action={updateSkill}
-                    className="grid gap-5"
-                  >
-                    <input
-                      type="hidden"
-                      name="id"
-                      value={skill.id}
-                    />
+                  <form action={updateSkill} className="grid gap-5">
+                    <input type="hidden" name="id" value={skill.id} />
 
                     <label className="grid gap-2">
                       <span className="font-medium text-slate-700">
@@ -560,9 +467,7 @@ export default async function AdminPage() {
                     </label>
 
                     <label className="grid gap-2">
-                      <span className="font-medium text-slate-700">
-                        説明
-                      </span>
+                      <span className="font-medium text-slate-700">説明</span>
                       <textarea
                         name="description"
                         rows={3}
@@ -586,9 +491,7 @@ export default async function AdminPage() {
                     </label>
 
                     <label className="grid gap-2">
-                      <span className="font-medium text-slate-700">
-                        表示順
-                      </span>
+                      <span className="font-medium text-slate-700">表示順</span>
                       <input
                         type="number"
                         name="displayOrder"
@@ -608,11 +511,7 @@ export default async function AdminPage() {
                   </form>
 
                   <form action={deleteSkill}>
-                    <input
-                      type="hidden"
-                      name="id"
-                      value={skill.id}
-                    />
+                    <input type="hidden" name="id" value={skill.id} />
                     <DeleteButton
                       confirmationMessage={`「${skill.name}」を削除しますか？`}
                     >

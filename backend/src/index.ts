@@ -1,9 +1,5 @@
 import "dotenv/config";
-import express, {
-  NextFunction,
-  Request,
-  Response,
-} from "express";
+import express, { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import contentRouter from "./routes/content";
 import adminRouter from "./routes/admin";
@@ -29,18 +25,11 @@ app.get("/health", (_req: Request, res: Response) => {
 });
 
 // 管理APIへ送られた内部APIキーを確認する
-function verifyInternalApiKey(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  const configuredApiKey =
-    process.env.INTERNAL_API_KEY;
+function verifyInternalApiKey(req: Request, res: Response, next: NextFunction) {
+  const configuredApiKey = process.env.INTERNAL_API_KEY;
 
   if (!configuredApiKey) {
-    console.error(
-      "INTERNAL_API_KEYが設定されていません。",
-    );
+    console.error("INTERNAL_API_KEYが設定されていません。");
 
     res.status(500).json({
       error: "サーバーの設定に問題があります",
@@ -48,14 +37,10 @@ function verifyInternalApiKey(
     return;
   }
 
-  const receivedApiKey = req.header(
-    "x-internal-api-key",
-  );
+  const receivedApiKey = req.header("x-internal-api-key");
 
   if (!isValidInternalApiKey(receivedApiKey, configuredApiKey)) {
-    console.error(
-      "管理APIのINTERNAL_API_KEYが一致しません。",
-    );
+    console.error("管理APIのINTERNAL_API_KEYが一致しません。");
 
     res.status(401).json({
       error:
@@ -71,15 +56,8 @@ function verifyInternalApiKey(
 app.use("/api", imageRouter, contentRouter);
 
 // 管理画面から使用する登録・更新・削除API
-app.use(
-  "/api/admin",
-  verifyInternalApiKey,
-  profileImageRouter,
-  adminRouter,
-);
+app.use("/api/admin", verifyInternalApiKey, profileImageRouter, adminRouter);
 
 app.listen(PORT, () => {
-  console.log(
-    `Backend server is running on http://localhost:${PORT}`,
-  );
+  console.log(`Backend server is running on http://localhost:${PORT}`);
 });

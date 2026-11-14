@@ -4,15 +4,9 @@ import { prisma } from "../lib/prisma";
 
 const router = Router();
 
-const allowedImageTypes = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-];
+const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
 
-function parseId(
-  value: string | string[] | undefined,
-): number | null {
+function parseId(value: string | string[] | undefined): number | null {
   if (typeof value !== "string") {
     return null;
   }
