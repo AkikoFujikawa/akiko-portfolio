@@ -4,13 +4,18 @@ import express, {
   Request,
   Response,
 } from "express";
+import helmet from "helmet";
 import contentRouter from "./routes/content";
 import adminRouter from "./routes/admin";
 import imageRouter from "./routes/images";
 import profileImageRouter from "./routes/profile-image";
+import { isValidInternalApiKey } from "./lib/internal-api-key";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+// セキュリティ用のHTTPヘッダーを付け、X-Powered-By を消す
+app.use(helmet());
 
 // JSON形式のリクエストを受け取れるようにする
 app.use(express.json());
@@ -47,7 +52,7 @@ function verifyInternalApiKey(
     "x-internal-api-key",
   );
 
-  if (receivedApiKey !== configuredApiKey) {
+  if (!isValidInternalApiKey(receivedApiKey, configuredApiKey)) {
     console.error(
       "管理APIのINTERNAL_API_KEYが一致しません。",
     );
