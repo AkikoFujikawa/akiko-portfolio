@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
+import { portfolioFetchOptions } from "@/lib/portfolio-cache";
 
 type WorkImageRouteContext = {
   params: Promise<{
@@ -42,9 +41,8 @@ export async function GET(
   try {
     const response = await fetch(
       `${backendUrl.replace(/\/$/, "")}/api/works/${id}/image`,
-      {
-        cache: "no-store",
-      },
+      // 画像も公開画面のデータと同じく、サーバー側にとっておく
+      portfolioFetchOptions("cached"),
     );
 
     if (!response.ok) {
