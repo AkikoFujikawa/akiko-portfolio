@@ -4,6 +4,14 @@
 
 公開画面のお問い合わせフォームから送信された内容は、Next.jsのサーバー機能とExpress APIを経由してPostgreSQLへ保存します。
 
+**公開サイト：<https://akiko-portfolio-six.vercel.app>**
+
+> APIは無料プランで動かしているため、しばらくアクセスがないと、最初の表示に数十秒かかることがあります。
+
+| 公開画面 | 管理画面 |
+| --- | --- |
+| ![公開画面のトップ。名前、見出し、似顔絵が表示されている](docs/images/public-page.png) | ![管理画面。プロフィール画像の更新フォームが表示されている](docs/images/admin-page.png) |
+
 ## 制作目的
 
 これまでの仕事で培った「人に寄り添う力」と、現在学習しているWeb開発の知識を一つの画面で伝えるために制作しました。
@@ -123,16 +131,19 @@ Expressが停止中でも、キャッシュがあれば公開画面を表示で�
 
 | 分類      | 技術                 | バージョン            |
 | ------- | ------------------ | ---------------- |
-| 実行環境    | Node.js            | 24.15.0          |
-| フロントエンド | Next.js            | 16.2.11          |
+| 実行環境    | Node.js            | 24               |
+| フロントエンド | Next.js            | 16.4.6           |
 | UI      | React              | 19.2.4           |
 | CSS     | Tailwind CSS       | 4                |
 | バックエンド  | Express            | 5.2.1            |
-| ORM     | Prisma             | 7.9.0            |
+| ORM     | Prisma             | 7                |
 | データベース  | PostgreSQL         | 16               |
-| 認証      | Firebase           | 12.16.0          |
-| サーバー認証  | Firebase Admin SDK | 14.2.0           |
+| 認証      | Firebase           | 12               |
+| サーバー認証  | Firebase Admin SDK | 13.10.0          |
+| テスト     | Vitest             | 4                |
 | コンテナ    | Docker Compose     | PostgreSQLの起動に使用 |
+| CI      | GitHub Actions     | format・lint・テスト・ビルド |
+| 本番環境    | Vercel・Render・Neon | 画面・API・DB      |
 
 フロントエンド・バックエンドともにTypeScriptを使用しています。
 
@@ -288,7 +299,7 @@ node scripts/sync-internal-api-key.mjs
 ### 1. リポジトリを取得
 
 ```bash
-git clone https://github.com/ms-engineer-bc26-05/akiko-portfolio.git
+git clone https://github.com/AkikoFujikawa/akiko-portfolio.git
 cd akiko-portfolio
 ```
 
@@ -407,6 +418,17 @@ docker compose ps
 docker compose down
 ```
 
+## 本番環境
+
+| サービス | 役割 |
+| --- | --- |
+| Vercel | Next.js（画面） |
+| Render | Express（API） |
+| Neon | PostgreSQL（データベース） |
+| Firebase | 管理者の認証 |
+
+`main`へマージすると本番へ反映されます。構成・設定・トラブル対応は[デプロイ手順書](docs/deployment.md)にまとめています。
+
 ## 課題要件への対応
 
 | MUST要件                        | 対応内容                                            |
@@ -426,6 +448,7 @@ docker compose down
 ## 今後の改善
 
 * 管理画面でのお問い合わせ一覧・既読管理
+* お問い合わせのメール通知
+* スキルの説明を公開画面に表示
 * 画像の削除機能
-* フォーム送信結果を画面内へ表示する改善
-* 本番環境へのデプロイ
+* 管理画面の保存結果を画面内へ表示する改善
