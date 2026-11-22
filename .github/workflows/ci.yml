@@ -1,11 +1,11 @@
 name: CI
 
-# PR を作ったとき・更新したときと、develop／main に入ったときに実行する
+# PR を作ったとき・更新したときと、main に入ったときに実行する
 on:
   pull_request:
-    branches: [develop, main]
+    branches: [main]
   push:
-    branches: [develop, main]
+    branches: [main]
 
 permissions:
   contents: read
