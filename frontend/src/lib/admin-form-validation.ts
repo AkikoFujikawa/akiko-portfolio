@@ -18,6 +18,19 @@ export function parsePositiveId(
   return id;
 }
 
+// フォームの値は文字列で届くため、"true" / "false" だけを真偽値に変える
+export function parseContactRead(value: FormDataEntryValue | null): boolean {
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  throw new Error("既読状態が正しくありません");
+}
+
 export function parseDisplayOrder(value: FormDataEntryValue | null): number {
   const displayOrder = Number(value);
 
