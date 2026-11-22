@@ -5,6 +5,7 @@ import { adminApiFetch } from "@/lib/admin-api";
 import { PORTFOLIO_CACHE_TAG } from "@/lib/portfolio-cache";
 import {
   assertMaximumLength,
+  parseContactRead,
   parseDisplayOrder,
   parsePositiveId,
   parseTechnologies,
@@ -25,6 +26,22 @@ function revalidatePortfolio(): void {
   updateTag(PORTFOLIO_CACHE_TAG);
   revalidatePath("/admin");
   revalidatePath("/");
+}
+
+// お問い合わせの既読・未読を切り替える
+// 公開画面には関係しないので、管理画面だけを更新する
+export async function updateContactRead(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const id = parsePositiveId(formData.get("id"), "お問い合わせ");
+  const isRead = parseContactRead(formData.get("isRead"));
+
+  await adminApiFetch(`/api/admin/contacts/${id}/read`, {
+    method: "PATCH",
+    body: JSON.stringify({ isRead }),
+  });
+
+  revalidatePath("/admin");
 }
 
 function validateImage(value: FormDataEntryValue | null, label: string): File {

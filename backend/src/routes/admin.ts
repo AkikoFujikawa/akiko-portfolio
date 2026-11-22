@@ -5,6 +5,10 @@ import {
   validateSkillInput,
   validateWorkInput,
 } from "../validation/admin-content";
+import {
+  ADMIN_CONTACT_LIST_LIMIT,
+  validateContactReadInput,
+} from "../validation/admin-contact";
 
 const router = Router();
 
@@ -339,6 +343,88 @@ router.delete("/skills/:id", async (req: Request, res: Response) => {
     console.error("スキル削除エラー:", error);
     res.status(500).json({
       error: "スキルの削除に失敗しました",
+    });
+  }
+});
+
+// お問い合わせ一覧を取得（新しい順）
+router.get("/contacts", async (_req: Request, res: Response) => {
+  // 個人情報を含むため、途中の経路にも保存させない
+  res.set("Cache-Control", "no-store");
+
+  try {
+    const [contacts, unreadCount] = await Promise.all([
+      prisma.contact.findMany({
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: ADMIN_CONTACT_LIST_LIMIT,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          message: true,
+          isRead: true,
+          createdAt: true,
+        },
+      }),
+      // 表示件数の上限を超えていても、未読の総数を正しく出す
+      prisma.contact.count({ where: { isRead: false } }),
+    ]);
+
+    res.status(200).json({ contacts, unreadCount });
+  } catch (error) {
+    console.error("お問い合わせ一覧取得エラー:", error);
+    res.status(500).json({
+      error: "お問い合わせ一覧の取得に失敗しました",
+    });
+  }
+});
+
+// お問い合わせの既読・未読を切り替える
+router.patch("/contacts/:id/read", async (req: Request, res: Response) => {
+  res.set("Cache-Control", "no-store");
+
+  try {
+    const id = parseId(req.params.id);
+
+    if (id === null) {
+      res.status(400).json({
+        error: "正しいお問い合わせIDを指定してください",
+      });
+      return;
+    }
+
+    const validation = validateContactReadInput(req.body);
+
+    if (!validation.success) {
+      res.status(400).json({
+        error: validation.error,
+      });
+      return;
+    }
+
+    const existingContact = await prisma.contact.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!existingContact) {
+      res.status(404).json({
+        error: "お問い合わせが見つかりません",
+      });
+      return;
+    }
+
+    const contact = await prisma.contact.update({
+      where: { id },
+      data: { isRead: validation.data.isRead },
+      select: { id: true, isRead: true },
+    });
+
+    res.status(200).json(contact);
+  } catch (error) {
+    console.error("お問い合わせ既読更新エラー:", error);
+    res.status(500).json({
+      error: "お問い合わせの更新に失敗しました",
     });
   }
 });

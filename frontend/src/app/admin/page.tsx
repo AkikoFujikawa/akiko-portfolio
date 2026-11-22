@@ -5,6 +5,7 @@ import LogoutButton from "./logout-button";
 import ProfileImageForm from "./profile-image-form";
 import WorkImageForm from "./work-image-form";
 import DeleteButton from "./delete-button";
+import ContactList from "./contact-list";
 import {
   deleteSkill,
   deleteWork,
@@ -58,6 +59,9 @@ export default async function AdminPage() {
         </div>
 
         <p className="mt-6 text-slate-600">管理者としてログインしています。</p>
+
+        {/* 届いたお問い合わせを見落とさないよう、一番上に表示する */}
+        <ContactList />
 
         {profile && (
           <ProfileImageForm

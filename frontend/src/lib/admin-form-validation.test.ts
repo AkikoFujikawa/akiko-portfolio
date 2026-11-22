@@ -1,9 +1,22 @@
 import { describe, expect, it } from "vitest";
 import {
+  parseContactRead,
   parseDisplayOrder,
   parseTechnologies,
   validateOptionalHttpUrl,
 } from "./admin-form-validation";
+
+describe("parseContactRead", () => {
+  it("true と false の文字列を真偽値にする", () => {
+    expect(parseContactRead("true")).toBe(true);
+    expect(parseContactRead("false")).toBe(false);
+  });
+
+  it("それ以外の値を拒否する", () => {
+    expect(() => parseContactRead("yes")).toThrow("既読状態が正しくありません");
+    expect(() => parseContactRead(null)).toThrow("既読状態が正しくありません");
+  });
+});
 
 describe("parseDisplayOrder", () => {
   it("0以上の整数を受け付ける", () => {
