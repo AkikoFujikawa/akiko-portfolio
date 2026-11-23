@@ -80,6 +80,12 @@ Web Service を次の設定で作成する。
 | --- | --- |
 | `DATABASE_URL` | Neon の接続文字列 |
 | `INTERNAL_API_KEY` | Vercel と同じ値の合言葉 |
+| `RESEND_API_KEY` | Resend の API キー（メール通知用） |
+| `CONTACT_NOTIFICATION_TO` | 通知を受け取るメールアドレス（テスト用送信元では Resend の登録アドレス） |
+| `CONTACT_NOTIFICATION_FROM` | 送信元。独自ドメインがない間は `onboarding@resend.dev` |
+| `ADMIN_PAGE_URL` | 通知メールに載せる管理画面の URL（本番の `/admin/login`） |
+
+メール通知の 4 つが未設定でも、お問い合わせの保存は動く。Render の無料プランは SMTP のポートを使えないため、HTTPS の API で送信する。
 
 `INTERNAL_API_KEY` は、次のコマンドで作れる（出力はチャットなどに貼らない）。
 
@@ -137,6 +143,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | 環境変数を直したのに変わらない | 再デプロイしていない | Redeploy する |
 | `P1013` | 接続文字列の形式が正しくない | `postgresql://` から始まっているか確認する |
 | 最初の表示だけ遅い | Render が停止から起動している | 数十秒待つ（無料プランの仕様） |
+| 通知メールが届かない、Render のログに `メール通知に失敗しました: 403` | テスト用送信元で、Resend の登録アドレス以外に送っている可能性 | `CONTACT_NOTIFICATION_TO` を確認する。迷惑メールも確認する |
+| Render のログに `メール通知の環境変数が未設定` | 通知用の環境変数が足りない | Render の 4 つの環境変数を確認して再デプロイする |
 
 ## 5. 合言葉（INTERNAL_API_KEY）を作り直すとき
 
