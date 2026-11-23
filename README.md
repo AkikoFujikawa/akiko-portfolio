@@ -61,6 +61,7 @@
 * Expressによるプロフィール・実績・スキルのCRUD API
 * Prismaを使用したPostgreSQLのデータ操作
 * お問い合わせ内容の保存
+* お問い合わせ受信のメール通知（Resend。個人情報はメールに含めない）
 * 内部APIキーによる管理APIの保護
 * 必須項目・メール形式・文字数の入力チェック
 
@@ -254,7 +255,15 @@ akiko-portfolio/
 DATABASE_URL
 INTERNAL_API_KEY
 PORT
+RESEND_API_KEY
+CONTACT_NOTIFICATION_TO
+CONTACT_NOTIFICATION_FROM
+ADMIN_PAGE_URL
 ```
+
+`RESEND_API_KEY`から`ADMIN_PAGE_URL`までは、お問い合わせのメール通知に使います。
+未設定でもお問い合わせは保存され、メール通知だけが行われません。
+Resendのテスト用送信元（`onboarding@resend.dev`）は、Resendに登録したメールアドレス宛てにのみ送信できます。
 
 ### フロントエンド
 
@@ -450,7 +459,6 @@ docker compose down
 
 ## 今後の改善
 
-* お問い合わせのメール通知
 * スキルの説明を公開画面に表示
 * 画像の削除機能
 * 管理画面の保存結果を画面内へ表示する改善

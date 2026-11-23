@@ -6,6 +6,7 @@ import {
   getContactWindowStart,
   isContactLimitReached,
 } from "../lib/contact-rate-limit";
+import { sendContactNotification } from "../lib/contact-notification";
 
 const router = Router();
 
@@ -76,6 +77,9 @@ router.post("/", async (req: Request, res: Response) => {
       message: "お問い合わせを受け付けました",
       contact,
     });
+
+    // 保存が終わってから通知する。送信者を待たせず、失敗しても保存には影響しない
+    void sendContactNotification(contact.createdAt);
   } catch (error) {
     console.error("お問い合わせ登録エラー:", error);
 
