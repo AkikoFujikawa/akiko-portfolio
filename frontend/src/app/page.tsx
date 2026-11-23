@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getPortfolioContent } from "@/lib/portfolio-api";
+import { groupSkillsByCategory } from "@/lib/skill-groups";
 import ContactForm from "./contact-form";
 
 export default async function Home() {
@@ -11,6 +12,7 @@ export default async function Home() {
   await connection();
 
   const { profile, works, skills } = await getPortfolioContent();
+  const skillGroups = groupSkillsByCategory(skills);
 
   return (
     <main className="watercolor-bg min-h-screen text-[#4a4a4a]">
@@ -257,21 +259,40 @@ export default async function Home() {
       {/* スキル */}
       <section
         id="skills"
-        className="mx-auto max-w-4xl scroll-mt-20 px-6 py-20"
+        className="mx-auto max-w-6xl scroll-mt-20 px-6 py-20"
       >
         <div className="mb-12 text-center">
           <p className="text-sm font-semibold tracking-[0.25em]">SKILLS</p>
           <h2 className="mt-3 text-3xl font-bold">スキル</h2>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-3">
-          {skills.map((skill) => (
-            <span
-              key={skill.id}
-              className="rounded-full bg-white/45 px-5 py-3 font-medium shadow-sm"
-            >
-              {skill.name}
-            </span>
+        {/* カテゴリーごとに、スキル名と説明をカードで表示する */}
+        <div className="grid gap-10">
+          {skillGroups.map((group) => (
+            <div key={group.category}>
+              <h3 className="mb-4 text-xl font-semibold tracking-wide">
+                {group.category}
+              </h3>
+
+              {/* スマホ1列、タブレット2列、パソコン3列 */}
+              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {group.skills.map((skill) => (
+                  <li
+                    key={skill.id}
+                    className="rounded-2xl bg-white/40 p-6 shadow-sm"
+                  >
+                    <h4 className="font-semibold break-words">{skill.name}</h4>
+
+                    {/* 説明が空のスキルは、スキル名だけを表示する */}
+                    {skill.description?.trim() && (
+                      <p className="mt-2 text-sm leading-6 break-words whitespace-pre-line">
+                        {skill.description}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
       </section>
