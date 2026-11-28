@@ -1,24 +1,11 @@
 // 画像を最大1MBまで受け取り、PostgreSQLへ保存します。
 import { raw, Request, Response, Router } from "express";
 import { prisma } from "../lib/prisma";
+import { parseId } from "../validation/parse-id";
 
 const router = Router();
 
 const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
-
-function parseId(value: string | string[] | undefined): number | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const id = Number(value);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    return null;
-  }
-
-  return id;
-}
 
 function getImageContentType(req: Request): string | null {
   const contentType = req

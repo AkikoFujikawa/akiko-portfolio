@@ -63,8 +63,11 @@ export default function AdminLoginPage() {
         throw new Error("ログイン情報を確認できませんでした。");
       }
 
-      // ログイン成功後、管理者ページにリダイレクト
+      // ログイン成功後、管理者ページへ移動する。
+      // 受け取ったばかりのログイン情報（Cookie）で管理画面を最初から表示するため、
+      // ページ全体を読み込み直す（ログアウト時と同じ考え方）
       await signOut(auth);
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = "/admin";
     } catch (error) {
       console.error(error);

@@ -20,6 +20,9 @@ export default function LogoutButton() {
       }
 
       await signOut(auth);
+      // ブラウザに残った管理画面のデータを確実に消すため、ページ全体を読み込み直す
+      // （router.push だとデータが残り、「戻る」で管理画面が見えるおそれがある）
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = "/admin/login";
     } catch (error) {
       console.error(error);
