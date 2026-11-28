@@ -9,22 +9,9 @@ import {
   ADMIN_CONTACT_LIST_LIMIT,
   validateContactReadInput,
 } from "../validation/admin-contact";
+import { parseId } from "../validation/parse-id";
 
 const router = Router();
-
-function parseId(value: string | string[] | undefined): number | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const id = Number(value);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    return null;
-  }
-
-  return id;
-}
 
 // プロフィールを登録
 router.post("/profile", async (req: Request, res: Response) => {

@@ -1,21 +1,8 @@
 import { Request, Response, Router } from "express";
 import { prisma } from "../lib/prisma";
+import { parseId } from "../validation/parse-id";
 
 const router = Router();
-
-function parseId(value: string | string[] | undefined): number | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const id = Number(value);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    return null;
-  }
-
-  return id;
-}
 
 router.get("/profile/image", async (_req: Request, res: Response) => {
   try {
